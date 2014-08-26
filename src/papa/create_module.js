@@ -26,7 +26,7 @@
     var createModule = function(name, root, createModFn) {
         if (arguments.length === 2) {
             createModFn = root;
-            root = window || global || this;
+            root = require('./root')();
         }
         createObjPath(name, root, function(cur, next) {
             if (typeof createModFn === 'function') {

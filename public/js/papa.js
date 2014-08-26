@@ -217,7 +217,6 @@
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
 },{"./create_module":4}],4:[function(_dereq_,module,exports){
-(function (global){
 (function(){
     "use strict";
 
@@ -246,7 +245,7 @@
     var createModule = function(name, root, createModFn) {
         if (arguments.length === 2) {
             createModFn = root;
-            root = window || global || this;
+            root = _dereq_('./root')();
         }
         createObjPath(name, root, function(cur, next) {
             if (typeof createModFn === 'function') {
@@ -274,9 +273,7 @@
 
 })();
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],5:[function(_dereq_,module,exports){
-(function (global){
+},{"./root":7}],5:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -295,7 +292,7 @@
             return api.options.DEBUG || api.options.INFO || api.options.WARN || api.options.ERROR;
         };
 
-        var root = window || global || this;
+        var root = _dereq_('./root')();
 
         if ('undefined' !== typeof root.console) {
 
@@ -334,8 +331,7 @@
 })();
 // vim: et ts=4 sts=4 sw=4
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(_dereq_,module,exports){
+},{"./root":7}],6:[function(_dereq_,module,exports){
 module.exports = function(papa) {
   return papa.Mixin('object_directory', function() {
     var build_obj_id;
@@ -381,6 +377,37 @@ module.exports = function(papa) {
 
 
 
+},{}],7:[function(_dereq_,module,exports){
+(function (global){
+(function(){
+    "use strict";
+
+    module.exports = function() {
+        var root;
+
+        try {
+            root = window;
+        } catch (err) {
+        }
+
+        if (typeof root === 'undefined') {
+            try {
+                root = global;
+            } catch (err) {
+            }
+        }
+
+        if (typeof root === 'undefined') {
+            root = this;
+        }
+
+        return root;
+    };
+
+})();
+// vim: et ts=4 sts=4 sw=4
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[1])
 (1)
 });

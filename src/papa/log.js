@@ -16,7 +16,7 @@
             return api.options.DEBUG || api.options.INFO || api.options.WARN || api.options.ERROR;
         };
 
-        var root = window || global || this;
+        var root = require('./root')();
 
         if ('undefined' !== typeof root.console) {
 
