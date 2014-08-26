@@ -18,12 +18,15 @@
 
 	papa.Mixin = create_mixin(papa);
 
+	_dereq_('./papa/log')(papa);
+	_dereq_('./papa/object_directory.coffee')(papa);
+
 	module.exports = papa;
 
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_module":4}],2:[function(_dereq_,module,exports){
+},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_module":4,"./papa/log":5,"./papa/object_directory.coffee":6}],2:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
@@ -268,6 +271,113 @@
 })();
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],5:[function(_dereq_,module,exports){
+(function (global){
+(function(){
+    "use strict";
+
+    module.exports = function(papa) {
+
+        papa.Module('log', function(api) {
+
+            api.options = {
+                DEBUG: true,
+                INFO: true,
+                WARN: true,
+                ERROR: true
+            };
+
+            var any_log = function() {
+                return api.options.DEBUG || api.options.INFO || api.options.WARN || api.options.ERROR;
+            };
+
+            var root = window || global || this;
+
+            if ('undefined' !== typeof root.console) {
+
+                api.debug = function() {
+                    if (api.options.DEBUG) console.debug.apply(console, arguments);
+                };
+                api.info = function() {
+                    if (api.options.INFO) console.info.apply(console, arguments);
+                };
+                api.warn = function() {
+                    if (api.options.WARN) console.warn.apply(console, arguments);
+                };
+                api.error = function() {
+                    if (api.options.ERROR) console.error.apply(console, arguments);
+                };
+
+                if ('function' === typeof root.console.group) {
+                    api.group = function(name, fn) {
+                        var any = any_log();
+                        if (any) console.group(name);
+                        fn();
+                        if (any) console.groupEnd();
+                    };
+                } else {
+                    api.group = function(_, fn) {
+                        fn();
+                    };
+                }
+
+            } else {
+
+                api.debug = api.info = api.warn = api.error = function(){};
+            }
+        });
+    };
+
+})();
+// vim: et ts=4 sts=4 sw=4
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],6:[function(_dereq_,module,exports){
+module.exports = function(papa) {
+  return papa.Mixin('object_directory', function() {
+    var build_obj_id;
+    build_obj_id = function(self, conf) {
+      if (self.name) {
+        if (conf.objectDirectory.obj_directory[self.name] != null) {
+          throw new Error("object name '" + self.name + "' already exists for " + conf.objectTypeName);
+        }
+        return self.name;
+      }
+      conf.objectDirectory.cur_obj_id++;
+      return "" + conf.objectTypeName + "@" + conf.objectDirectory.cur_obj_id;
+    };
+    return {
+      initialize: function(obj) {
+        var finder, _base, _conf;
+        (_base = obj.conf).objectDirectory || (_base.objectDirectory = {
+          obj_directory: {},
+          latest_obj: null,
+          cur_obj_id: 0
+        });
+        obj.self.name = build_obj_id(obj.self, obj.conf);
+        _conf = obj.conf.objectDirectory;
+        _conf.obj_directory[obj.self.name] = obj.self;
+        finder = function(name) {
+          return _conf.obj_directory[name];
+        };
+        if (!_conf.static_finder_created) {
+          _conf.static_finder_created = true;
+          obj.conf.app.Module(obj.conf.objectTypeName, function(exports) {
+            exports.get = finder;
+            exports.find = finder;
+            exports.latest = function() {
+              return _conf.latest_obj;
+            };
+          });
+        }
+        return _conf.latest_obj = obj.self;
+      }
+    };
+  });
+};
+
+
+
 },{}]},{},[1])
 (1)
 });

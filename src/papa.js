@@ -17,6 +17,9 @@
 
 	papa.Mixin = create_mixin(papa);
 
+	require('./papa/log')(papa);
+	require('./papa/object_directory.coffee')(papa);
+
 	module.exports = papa;
 
 })();
