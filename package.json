@@ -1,0 +1,18 @@
+{
+  "name": "papa",
+  "version": "0.1.0",
+  "author": {
+    "name": "Wolfger Schramm",
+    "email": "wolfger@spearwolf.de",
+    "url": "https://github.com/spearwolf"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.7.1",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^2.1.4",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "coffeeify": "^0.7.0",
+    "grunt-contrib-copy": "^0.5.0"
+  }
+}
