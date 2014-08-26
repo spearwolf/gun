@@ -71,6 +71,10 @@
 					});
 					apiInstance.papa.instance = instance;
 					apiInstance.papa.apiInstance = apiInstance;
+					apiInstance.papa.kindOf = function(mixinName) {
+						if (!apiInstance.papa.mixins) return false;
+						return apiInstance.papa.mixins.indexOf(mixinName) > -1;
+					};
 				}
 				if (!apiInstance.papa.mixins) {
 					apiInstance.papa.mixins = [objectTypeName];
