@@ -29,17 +29,16 @@
                 };
 
                 obj.exports.off = function(id) {
-                    var k, i, cb;
-                    for (k in callbacks) {
-                        if (callbacks.hasOwnProperty(k)) {
-                            for (i = 0; i < callbacks[k].length; i++) {
-                                cb = callbacks[k][i];
-                                if (cb.id === id) {
-                                    callbacks[k].splice(i, 1);
-                                    return;
-                                }
-                            }
-                        }
+                    var cb, i, j, _callbacks, keys = Object.keys(callbacks);
+					for (j = 0; j < keys.length; j++) {
+						_callbacks = callbacks[keys[j]];
+						for (i = 0; i < _callbacks.length; i++) {
+							cb = _callbacks[i];
+							if (cb.id === id) {
+								_callbacks.splice(i, 1);
+								return;
+							}
+						}
                     }
                 };
 

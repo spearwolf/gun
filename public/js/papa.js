@@ -4,21 +4,23 @@
 
 	var create_module = _dereq_('./papa/create_module')
 	  , create_mixin = _dereq_('./papa/create_mixin')
+	  , create_app = _dereq_('./papa/create_app')
 	  , papa = {
 
 			VERSION: '0.1.3',
 
-			App: _dereq_('./papa/create_app'),
-
 			Module: create_module.Module,
 			CreateObjPath: create_module.CreateObjPath
-
 		}
 	  ;
 
+	Object.defineProperty(papa, '_papa', { value: papa });
+
+	papa.App = create_app(papa);
 	papa.Mixin = create_mixin(papa);
 
 	_dereq_('./papa/log')(papa);
+	_dereq_('./papa/events')(papa);
 	_dereq_('./papa/object_directory.coffee')(papa);
 
 	module.exports = papa;
@@ -26,50 +28,58 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_module":4,"./papa/log":5,"./papa/object_directory.coffee":6}],2:[function(_dereq_,module,exports){
+},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_module":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
 	var create_module = _dereq_('./create_module')
 	  , create_mixin = _dereq_('./create_mixin')
+	  , setup_registry = _dereq_('./registry')
 	  ;
 
-	function create_app_root() {
-		var app = {};
+	module.exports = function(papa) {
 
-		app.Module = function(name, createModFn) {
-			return create_module.Module(name, app, createModFn);
-		};
+		setup_registry(papa, '_apps_registry');
 
-		app.Mixin = create_mixin(app);
+		function create_app_root() {
+			var app = {};
+			Object.defineProperty(app, '_papa', { value: papa });
 
-		return app;
-	}
+			app.Module = function(name, createModFn) {
+				return create_module.Module(name, app, createModFn);
+			};
 
-	module.exports = function(appName) {
+			app.Mixin = create_mixin(app);
 
-		var apps_registry = {};
-
-		var app = apps_registry[appName];
-		if (!app) {
-			app = apps_registry[appName] = create_app_root();
+			return app;
 		}
 
-		return app;
+		return function(appName) {
+			//var app = papa._apps_registry[appName];
+			var app = papa._apps_registry.get(appName);
+			if (!app) {
+				//app = papa._apps_registry[appName] = create_app_root();
+				app = papa._apps_registry.set(appName, create_app_root());
+			}
+
+			return app;
+		};
 	};
 
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_mixin":3,"./create_module":4}],3:[function(_dereq_,module,exports){
+},{"./create_mixin":3,"./create_module":4,"./registry":8}],3:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
-	var create_module = _dereq_('./create_module');
+	var create_module = _dereq_('./create_module')
+	  , setup_registry = _dereq_('./registry')
+	  ;
 
 	module.exports = function(papa) {
 
-		var mixins = {};
+		setup_registry(papa, '_mixins_registry');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
 			if (Array.isArray(objectTypeName)) {
@@ -123,7 +133,8 @@
 				instance = apiInstance.papa.instance;
 			}
 
-			var _mixins = mixins[objectTypeName];
+			//var _mixins = papa._mixins_registry[objectTypeName];
+			var _mixins = papa._mixins_registry.findAll(objectTypeName);
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
 				if (!apiInstance.papa) {
@@ -165,11 +176,15 @@
 
 						// initialize
 						if (typeof mixin.initialize === 'function') {
-							var mixinConf = mixins[originalObjectTypeName];
-							if (Array.isArray(mixinConf)) {
-								mixinConf = mixinConf[0];
+							//var mixinConf = papa._mixins_registry[originalObjectTypeName];
+							var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
+							if (!mixinConf) {
+								mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
 							}
-							if (!mixinConf.app) {
+							//if (Array.isArray(mixinConf)) {
+								//mixinConf = mixinConf[0];
+							//}
+							if (mixinConf && !mixinConf.app) {
 								mixinConf.app = papa;
 							}
 							if (typeof mixin.namespace === 'string') {
@@ -186,16 +201,21 @@
 
 		var api = function(objectTypeName, callback) {
 
-			if (!Array.isArray(mixins[objectTypeName])) {
-				mixins[objectTypeName] = [];
-			}
+			//if (!Array.isArray(papa._mixins_registry[objectTypeName])) {
+				//papa._mixins_registry[objectTypeName] = [];
+			//}
 
 			var mixin = callback();
-			if ('object' === typeof mixin) {
-				mixin.objectTypeName = objectTypeName;
+			//if ('object' === typeof mixin) {
+				//mixin.objectTypeName = objectTypeName;
+			//}
+			if ('function' === typeof mixin) {
+				mixin = { initialize: mixin };
 			}
+			mixin.objectTypeName = objectTypeName;
 
-			mixins[objectTypeName].push(mixin);
+			//papa._mixins_registry[objectTypeName].push(mixin);
+			papa._mixins_registry.push(objectTypeName, mixin);
 
 			// factory
 			if (mixin.factory) {
@@ -216,7 +236,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_module":4}],4:[function(_dereq_,module,exports){
+},{"./create_module":4,"./registry":8}],4:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -273,7 +293,67 @@
 
 })();
 
-},{"./root":7}],5:[function(_dereq_,module,exports){
+},{"./root":9}],5:[function(_dereq_,module,exports){
+(function(){
+    "use strict";
+
+    module.exports = function(papa) {
+
+        papa.Mixin('events', function() {
+
+            return function(obj) {
+
+                var callbacks = { _id: 0 };
+
+                obj.exports.on = function(eventName, prio, fn) {
+
+                    if (arguments.length === 2) {
+                        fn = prio;
+                        prio = 0;
+                    }
+
+                    var eventListener = callbacks[eventName] || (callbacks[eventName] = [])
+                      , fnId = ++callbacks._id
+                      ;
+
+                    eventListener.push({ id: fnId, fn: fn, prio: (prio||0) });
+                    eventListener.sort(function(a,b){
+                        return b.prio - a.prio;
+                    });
+
+                    return fnId;
+                };
+
+                obj.exports.off = function(id) {
+                    var cb, i, j, _callbacks, keys = Object.keys(callbacks);
+					for (j = 0; j < keys.length; j++) {
+						_callbacks = callbacks[keys[j]];
+						for (i = 0; i < _callbacks.length; i++) {
+							cb = _callbacks[i];
+							if (cb.id === id) {
+								_callbacks.splice(i, 1);
+								return;
+							}
+						}
+                    }
+                };
+
+                obj.exports.emit = function(eventName /* arguments.. */) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    if (eventName in callbacks) {
+                        callbacks[eventName].forEach(function(cb){
+                            cb.fn.apply(obj.current, args);
+                        });
+                    }
+                };
+
+            };
+        });
+    };
+})();
+// vim: set noexpandtab:sts=4:ts=4:sw=4:
+
+},{}],6:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -331,7 +411,7 @@
 })();
 // vim: et ts=4 sts=4 sw=4
 
-},{"./root":7}],6:[function(_dereq_,module,exports){
+},{"./root":9}],7:[function(_dereq_,module,exports){
 module.exports = function(papa) {
   return papa.Mixin('object_directory', function() {
     var build_obj_id;
@@ -377,7 +457,82 @@ module.exports = function(papa) {
 
 
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],8:[function(_dereq_,module,exports){
+(function(){
+    "use strict";
+
+	function Registry(parent) {
+		this.parent = parent;
+		this.data = {};
+	}
+
+	Registry.prototype.get = function(key) {
+		var val = this.data[key];
+		return typeof val === 'undefined' && this.parent ? this.parent.get(key) : val;
+	};
+
+	Registry.prototype.findAll = function(key, fromButtomUp) {
+		var values = [], _values;
+
+		if (this.parent && !fromButtomUp) {
+			values = values.concat(this.parent.findAll(key));
+		}
+
+		_values = this.data[key];
+		if (Array.isArray(_values)) {
+			values = values.concat(_values);
+		}
+
+		if (this.parent && fromButtomUp) {
+			values = values.concat(this.parent.findAll(key));
+		}
+
+		return values;
+	};
+	
+	Registry.prototype.findOne = function(key, fromButtomUp) {
+		return this.findAll(key, fromButtomUp)[0];
+	};
+
+	Registry.prototype.push = function(key, value) {
+		var values = this.data[key];
+		if (typeof values === 'undefined') {
+			values = this.data[key] = [];
+		} else {
+			if (!Array.isArray(values)) {
+				throw new Error('could not push to', typeof values, 'value');
+			}
+		}
+		values.push(value);
+		return value;
+	};
+
+	Registry.prototype.exists = function(key) {
+		return typeof this.get(key) !== 'undefined';
+	};
+
+	Registry.prototype.set = function(key, value) {
+		this.data[key] = value;
+		return value;
+	};
+
+
+	module.exports = function(papa, propName) {
+		if (!papa._papa.hasOwnProperty(propName)) {
+			//Object.defineProperty(papa._papa, propName, { value: {} });
+			Object.defineProperty(papa._papa, propName, { value: new Registry() });
+		}
+		if (papa._papa !== papa) {
+			if (!papa.hasOwnProperty(propName)) {
+				Object.defineProperty(papa, propName, { value: new Registry(papa._papa[propName]) });
+			}
+		}
+	};
+
+})();
+// vim: set noexpandtab:sts=4:ts=4:sw=4:
+
+},{}],9:[function(_dereq_,module,exports){
 (function (global){
 (function(){
     "use strict";

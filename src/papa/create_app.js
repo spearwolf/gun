@@ -3,30 +3,36 @@
 
 	var create_module = require('./create_module')
 	  , create_mixin = require('./create_mixin')
+	  , setup_registry = require('./registry')
 	  ;
 
-	function create_app_root() {
-		var app = {};
+	module.exports = function(papa) {
 
-		app.Module = function(name, createModFn) {
-			return create_module.Module(name, app, createModFn);
-		};
+		setup_registry(papa, '_apps_registry');
 
-		app.Mixin = create_mixin(app);
+		function create_app_root() {
+			var app = {};
+			Object.defineProperty(app, '_papa', { value: papa });
 
-		return app;
-	}
+			app.Module = function(name, createModFn) {
+				return create_module.Module(name, app, createModFn);
+			};
 
-	module.exports = function(appName) {
+			app.Mixin = create_mixin(app);
 
-		var apps_registry = {};
-
-		var app = apps_registry[appName];
-		if (!app) {
-			app = apps_registry[appName] = create_app_root();
+			return app;
 		}
 
-		return app;
+		return function(appName) {
+			//var app = papa._apps_registry[appName];
+			var app = papa._apps_registry.get(appName);
+			if (!app) {
+				//app = papa._apps_registry[appName] = create_app_root();
+				app = papa._apps_registry.set(appName, create_app_root());
+			}
+
+			return app;
+		};
 	};
 
 })();

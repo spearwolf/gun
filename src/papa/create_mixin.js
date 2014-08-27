@@ -1,11 +1,13 @@
 (function(){
     "use strict";
 
-	var create_module = require('./create_module');
+	var create_module = require('./create_module')
+	  , setup_registry = require('./registry')
+	  ;
 
 	module.exports = function(papa) {
 
-		var mixins = {};
+		setup_registry(papa, '_mixins_registry');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
 			if (Array.isArray(objectTypeName)) {
@@ -59,7 +61,8 @@
 				instance = apiInstance.papa.instance;
 			}
 
-			var _mixins = mixins[objectTypeName];
+			//var _mixins = papa._mixins_registry[objectTypeName];
+			var _mixins = papa._mixins_registry.findAll(objectTypeName);
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
 				if (!apiInstance.papa) {
@@ -101,11 +104,15 @@
 
 						// initialize
 						if (typeof mixin.initialize === 'function') {
-							var mixinConf = mixins[originalObjectTypeName];
-							if (Array.isArray(mixinConf)) {
-								mixinConf = mixinConf[0];
+							//var mixinConf = papa._mixins_registry[originalObjectTypeName];
+							var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
+							if (!mixinConf) {
+								mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
 							}
-							if (!mixinConf.app) {
+							//if (Array.isArray(mixinConf)) {
+								//mixinConf = mixinConf[0];
+							//}
+							if (mixinConf && !mixinConf.app) {
 								mixinConf.app = papa;
 							}
 							if (typeof mixin.namespace === 'string') {
@@ -122,16 +129,21 @@
 
 		var api = function(objectTypeName, callback) {
 
-			if (!Array.isArray(mixins[objectTypeName])) {
-				mixins[objectTypeName] = [];
-			}
+			//if (!Array.isArray(papa._mixins_registry[objectTypeName])) {
+				//papa._mixins_registry[objectTypeName] = [];
+			//}
 
 			var mixin = callback();
-			if ('object' === typeof mixin) {
-				mixin.objectTypeName = objectTypeName;
+			//if ('object' === typeof mixin) {
+				//mixin.objectTypeName = objectTypeName;
+			//}
+			if ('function' === typeof mixin) {
+				mixin = { initialize: mixin };
 			}
+			mixin.objectTypeName = objectTypeName;
 
-			mixins[objectTypeName].push(mixin);
+			//papa._mixins_registry[objectTypeName].push(mixin);
+			papa._mixins_registry.push(objectTypeName, mixin);
 
 			// factory
 			if (mixin.factory) {
