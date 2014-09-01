@@ -8,7 +8,7 @@
         for (i = 0; i < path.length - 1; i++) {
             next = path[i];
             if (typeof cur[next] === 'undefined') {
-                cur[next] = {};
+                cur[next] = Object.create(null);
             }
             cur = cur[next];
         }
@@ -17,7 +17,7 @@
             nextCallback(cur, next);
         } else {
             if (typeof cur[next] === 'undefined') {
-                cur[next] = {};
+                cur[next] = Object.create(null);
             }
             return cur[next];
         }

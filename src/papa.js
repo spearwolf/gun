@@ -6,7 +6,7 @@
 	  , create_app = require('./papa/create_app')
 	  , papa = {
 
-			VERSION: '0.1.3',
+			VERSION: '0.1.4',
 
 			Module: create_module.Module,
 			CreateObjPath: create_module.CreateObjPath

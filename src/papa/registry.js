@@ -3,7 +3,7 @@
 
 	function Registry(parent) {
 		this.parent = parent;
-		this.data = {};
+		this.data = new Map();
 	}
 
 	Registry.prototype.get = function(key) {

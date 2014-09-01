@@ -7,7 +7,7 @@
 	  , create_app = _dereq_('./papa/create_app')
 	  , papa = {
 
-			VERSION: '0.1.3',
+			VERSION: '0.1.4',
 
 			Module: create_module.Module,
 			CreateObjPath: create_module.CreateObjPath
@@ -113,18 +113,6 @@
 		};
 
 		function mixin_args(instance, objExports, objConf) {
-			//var arg = {
-				//self: instance,
-				//exports: objExports,
-				//conf: objConf
-			//};
-			//Object.defineProperty(arg, 'current', {
-				//enumerable: true,
-				//configurable: false,
-				//get: function() {
-					//return instance.papa.instance;
-				//}
-			//});
 			return Object.create(null, {
 				self: {
 					enumerable: true,
@@ -192,9 +180,7 @@
 						if (typeof mixin.initialize === 'function') {
 							var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
 							if (!mixinConf) {
-								//log.warn('mixinConf for', originalObjectTypeName, 'not found');
 								mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
-								//log.warn('mixinConf fallback', mixinConf);
 							}
 							if (mixinConf && !mixinConf.app) {
 								mixinConf.app = papa;
@@ -218,7 +204,6 @@
 				mixin = { initialize: mixin };
 			}
 			mixin.objectTypeName = objectTypeName;
-			//log.debug('new mixinConf', mixin);
 
 			papa._mixins_registry.push(objectTypeName, mixin);
 
@@ -252,7 +237,7 @@
         for (i = 0; i < path.length - 1; i++) {
             next = path[i];
             if (typeof cur[next] === 'undefined') {
-                cur[next] = {};
+                cur[next] = Object.create(null);
             }
             cur = cur[next];
         }
@@ -261,7 +246,7 @@
             nextCallback(cur, next);
         } else {
             if (typeof cur[next] === 'undefined') {
-                cur[next] = {};
+                cur[next] = Object.create(null);
             }
             return cur[next];
         }
@@ -468,7 +453,7 @@ module.exports = function(papa) {
 
 	function Registry(parent) {
 		this.parent = parent;
-		this.data = {};
+		this.data = new Map();
 	}
 
 	Registry.prototype.get = function(key) {
