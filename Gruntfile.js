@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         uglify: {
             min: {
                 files: {
-                    'build/bundle.min.js': [
+                    'build/papa.min.js': [
                         'vendor/*.js',
                         'build/papa.js'
                     ]
