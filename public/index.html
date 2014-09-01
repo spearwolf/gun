@@ -5,6 +5,35 @@
   <title>papa.js</title>
   <script type="text/javascript" src="./js/papa.js"></script>
   <script>
+    window.app = papa.App('foo');
+
+    app.Module('bar.plah', function(exports){
+
+      exports.x = 1;
+
+      exports.hello = function(name) {
+        console.log('hello', name, '!');
+      };
+
+    });
+
+    app.Mixin('position', function(){
+      return {
+        namespace: 'position',
+        factory: true,
+        dependsOn: 'events',
+
+        initialize: function(o) {
+
+          o.exports.set = function(x, y, z) {
+            o.self.x = x;
+            o.self.y = y;
+            o.self.z = z;
+          };
+        }
+      };
+    });
+
     console.log('papa', papa);
   </script>
 </head>

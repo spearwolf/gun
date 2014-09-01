@@ -15,10 +15,11 @@
 
 	Object.defineProperty(papa, '_papa', { value: papa });
 
+	require('./papa/log')(papa);
+
 	papa.App = create_app(papa);
 	papa.Mixin = create_mixin(papa);
 
-	require('./papa/log')(papa);
 	require('./papa/events')(papa);
 	require('./papa/object_directory.coffee')(papa);
 

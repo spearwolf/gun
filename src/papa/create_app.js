@@ -24,10 +24,8 @@
 		}
 
 		return function(appName) {
-			//var app = papa._apps_registry[appName];
 			var app = papa._apps_registry.get(appName);
 			if (!app) {
-				//app = papa._apps_registry[appName] = create_app_root();
 				app = papa._apps_registry.set(appName, create_app_root());
 			}
 

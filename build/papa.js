@@ -16,10 +16,11 @@
 
 	Object.defineProperty(papa, '_papa', { value: papa });
 
+	_dereq_('./papa/log')(papa);
+
 	papa.App = create_app(papa);
 	papa.Mixin = create_mixin(papa);
 
-	_dereq_('./papa/log')(papa);
 	_dereq_('./papa/events')(papa);
 	_dereq_('./papa/object_directory.coffee')(papa);
 
@@ -55,10 +56,8 @@
 		}
 
 		return function(appName) {
-			//var app = papa._apps_registry[appName];
 			var app = papa._apps_registry.get(appName);
 			if (!app) {
-				//app = papa._apps_registry[appName] = create_app_root();
 				app = papa._apps_registry.set(appName, create_app_root());
 			}
 
@@ -78,10 +77,14 @@
 	  ;
 
 	module.exports = function(papa) {
+		var log = papa._papa.Logger;
 
 		setup_registry(papa, '_mixins_registry');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
+			if (Array.isArray(originalObjectTypeName)) {
+				originalObjectTypeName = originalObjectTypeName[0];
+			}
 			if (Array.isArray(objectTypeName)) {
 				objectTypeName.forEach(function(typeName) {
 					_initialize(typeName, instance, originalObjectTypeName || objectTypeName);
@@ -94,7 +97,7 @@
 
 		var createNewObject = function(objectTypeName, objInstance, newScopeInheritance) {
 			if (typeof objInstance === 'undefined') {
-				return includeMixin(objectTypeName, {});
+				return includeMixin(objectTypeName, Object.create(null));
 			} else {
 				var obj;
 				if (newScopeInheritance === false) {
@@ -110,19 +113,34 @@
 		};
 
 		function mixin_args(instance, objExports, objConf) {
-			var arg = {
-				self: instance,
-				exports: objExports,
-				conf: objConf
-			};
-			Object.defineProperty(arg, 'current', {
-				enumerable: true,
-				configurable: false,
-				get: function() {
-					return instance.papa.instance;
-				}
+			//var arg = {
+				//self: instance,
+				//exports: objExports,
+				//conf: objConf
+			//};
+			//Object.defineProperty(arg, 'current', {
+				//enumerable: true,
+				//configurable: false,
+				//get: function() {
+					//return instance.papa.instance;
+				//}
+			//});
+			return Object.create(null, {
+				self: {
+					enumerable: true,
+				   	value: instance },
+				exports: {
+					enumerable: true,
+				   	value: objExports },
+				conf: {
+					enumerable: true,
+				   	value: objConf },
+				current: {
+					enumerable: true,
+					get: function() {
+						return instance.papa.instance;
+					} }
 			});
-			return arg;
 		}
 
 		function _initialize(objectTypeName, apiInstance, originalObjectTypeName) {
@@ -133,16 +151,12 @@
 				instance = apiInstance.papa.instance;
 			}
 
-			//var _mixins = papa._mixins_registry[objectTypeName];
 			var _mixins = papa._mixins_registry.findAll(objectTypeName);
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
 				if (!apiInstance.papa) {
 					Object.defineProperty(apiInstance, 'papa', {
-						enumerable: false,
-						configurable: false,
-						writable: false,
-						value: {}
+						value: Object.create(null)
 					});
 					apiInstance.papa.instance = instance;
 					apiInstance.papa.apiInstance = apiInstance;
@@ -176,14 +190,12 @@
 
 						// initialize
 						if (typeof mixin.initialize === 'function') {
-							//var mixinConf = papa._mixins_registry[originalObjectTypeName];
 							var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
 							if (!mixinConf) {
+								//log.warn('mixinConf for', originalObjectTypeName, 'not found');
 								mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
+								//log.warn('mixinConf fallback', mixinConf);
 							}
-							//if (Array.isArray(mixinConf)) {
-								//mixinConf = mixinConf[0];
-							//}
 							if (mixinConf && !mixinConf.app) {
 								mixinConf.app = papa;
 							}
@@ -201,20 +213,13 @@
 
 		var api = function(objectTypeName, callback) {
 
-			//if (!Array.isArray(papa._mixins_registry[objectTypeName])) {
-				//papa._mixins_registry[objectTypeName] = [];
-			//}
-
 			var mixin = callback();
-			//if ('object' === typeof mixin) {
-				//mixin.objectTypeName = objectTypeName;
-			//}
 			if ('function' === typeof mixin) {
 				mixin = { initialize: mixin };
 			}
 			mixin.objectTypeName = objectTypeName;
+			//log.debug('new mixinConf', mixin);
 
-			//papa._mixins_registry[objectTypeName].push(mixin);
 			papa._mixins_registry.push(objectTypeName, mixin);
 
 			// factory
@@ -433,7 +438,7 @@ module.exports = function(papa) {
           latest_obj: null,
           cur_obj_id: 0
         });
-        obj.self.name = build_obj_id(obj.self, obj.conf);
+        obj.self.name = build_obj_id(obj.current, obj.conf);
         _conf = obj.conf.objectDirectory;
         _conf.obj_directory[obj.self.name] = obj.self;
         finder = function(name) {
@@ -491,7 +496,15 @@ module.exports = function(papa) {
 	};
 	
 	Registry.prototype.findOne = function(key, fromButtomUp) {
-		return this.findAll(key, fromButtomUp)[0];
+		if (Array.isArray(key)) {
+			var i, res;
+			for (i = 0; i < key.length; i++) {
+				res = this.findOne(key[i], fromButtomUp);
+				if (res) return res;
+			}
+		} else {
+			return this.findAll(key, fromButtomUp)[0];
+		}
 	};
 
 	Registry.prototype.push = function(key, value) {
@@ -519,7 +532,6 @@ module.exports = function(papa) {
 
 	module.exports = function(papa, propName) {
 		if (!papa._papa.hasOwnProperty(propName)) {
-			//Object.defineProperty(papa._papa, propName, { value: {} });
 			Object.defineProperty(papa._papa, propName, { value: new Registry() });
 		}
 		if (papa._papa !== papa) {

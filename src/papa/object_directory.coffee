@@ -22,7 +22,7 @@ module.exports = (papa) ->
                 latest_obj: null
                 cur_obj_id: 0
 
-            obj.self.name = build_obj_id(obj.self, obj.conf)
+            obj.self.name = build_obj_id(obj.current, obj.conf)
             _conf = obj.conf.objectDirectory
             _conf.obj_directory[obj.self.name] = obj.self
 

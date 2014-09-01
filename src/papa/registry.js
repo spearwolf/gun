@@ -31,7 +31,15 @@
 	};
 	
 	Registry.prototype.findOne = function(key, fromButtomUp) {
-		return this.findAll(key, fromButtomUp)[0];
+		if (Array.isArray(key)) {
+			var i, res;
+			for (i = 0; i < key.length; i++) {
+				res = this.findOne(key[i], fromButtomUp);
+				if (res) return res;
+			}
+		} else {
+			return this.findAll(key, fromButtomUp)[0];
+		}
 	};
 
 	Registry.prototype.push = function(key, value) {
@@ -59,7 +67,6 @@
 
 	module.exports = function(papa, propName) {
 		if (!papa._papa.hasOwnProperty(propName)) {
-			//Object.defineProperty(papa._papa, propName, { value: {} });
 			Object.defineProperty(papa._papa, propName, { value: new Registry() });
 		}
 		if (papa._papa !== papa) {
