@@ -1,4 +1,7 @@
-papa
-====
+papa.js
+=======
 
-endgeiles "composition over inheritance" javascript micro framework
+Endgeiles **composition over inheritance** javascript *micro* framework.
+
+Documentation will follow later (maybe).
+
