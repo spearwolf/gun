@@ -3,10 +3,10 @@
 
 	var create_namespace = require('./papa/create_namespace')
 	  , create_mixin = require('./papa/create_mixin')
-	  , create_app = require('./papa/create_app')
+	  , create_module = require('./papa/create_module')
 	  , papa = {
 
-			VERSION: '0.2.0',
+			VERSION: '0.4.0',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
@@ -17,7 +17,7 @@
 
 	require('./papa/log')(papa);
 
-	papa.App = create_app(papa);
+	papa.Module = create_module(papa);
 	papa.Mixin = create_mixin(papa);
 
 	require('./papa/events')(papa);

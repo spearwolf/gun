@@ -4,10 +4,10 @@
 
 	var create_namespace = _dereq_('./papa/create_namespace')
 	  , create_mixin = _dereq_('./papa/create_mixin')
-	  , create_app = _dereq_('./papa/create_app')
+	  , create_module = _dereq_('./papa/create_module')
 	  , papa = {
 
-			VERSION: '0.2.0',
+			VERSION: '0.4.0',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
@@ -18,7 +18,7 @@
 
 	_dereq_('./papa/log')(papa);
 
-	papa.App = create_app(papa);
+	papa.Module = create_module(papa);
 	papa.Mixin = create_mixin(papa);
 
 	_dereq_('./papa/events')(papa);
@@ -29,46 +29,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_namespace":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
-(function(){
-	"use strict";
-
-	var create_namespace = _dereq_('./create_namespace')
-	  , create_mixin = _dereq_('./create_mixin')
-	  , setup_registry = _dereq_('./registry')
-	  ;
-
-	module.exports = function(papa) {
-
-		setup_registry(papa, '_apps_registry');
-
-		function create_app_root() {
-			var app = {};
-			Object.defineProperty(app, '_papa', { value: papa });
-
-			app.Namespace = function(name, createModFn) {
-				return create_namespace.Namespace(name, app, createModFn);
-			};
-
-			app.Mixin = create_mixin(app);
-
-			return app;
-		}
-
-		return function(appName) {
-			var app = papa._apps_registry.get(appName);
-			if (!app) {
-				app = papa._apps_registry.set(appName, create_app_root());
-			}
-
-			return app;
-		};
-	};
-
-})();
-// vim: set noexpandtab:sts=4:ts=4:sw=4:
-
-},{"./create_mixin":3,"./create_namespace":4,"./registry":8}],3:[function(_dereq_,module,exports){
+},{"./papa/create_mixin":2,"./papa/create_module":3,"./papa/create_namespace":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -209,8 +170,8 @@
 							mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
 						}
 
-						if (mixinConf && !mixinConf.app) {
-							mixinConf.app = papa;
+						if (mixinConf && !mixinConf.papa) {
+							mixinConf.papa = papa;
 						}
 
 						if (typeof mixin.namespace === 'string') {
@@ -261,7 +222,46 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_namespace":4,"./registry":8}],4:[function(_dereq_,module,exports){
+},{"./create_namespace":4,"./registry":8}],3:[function(_dereq_,module,exports){
+(function(){
+	"use strict";
+
+	var create_namespace = _dereq_('./create_namespace')
+	  , create_mixin = _dereq_('./create_mixin')
+	  , setup_registry = _dereq_('./registry')
+	  ;
+
+	module.exports = function(papa) {
+
+		setup_registry(papa, '_modules_registry');
+
+		function create_mod_root() {
+			var mod = {};
+			Object.defineProperty(mod, '_papa', { value: papa });
+
+			mod.Namespace = function(name, createModFn) {
+				return create_namespace.Namespace(name, mod, createModFn);
+			};
+
+			mod.Mixin = create_mixin(mod);
+
+			return mod;
+		}
+
+		return function(modName) {
+			var mod = papa._modules_registry.get(modName);
+			if (!mod) {
+				mod = papa._modules_registry.set(modName, create_mod_root());
+			}
+
+			return mod;
+		};
+	};
+
+})();
+// vim: set noexpandtab:sts=4:ts=4:sw=4:
+
+},{"./create_mixin":2,"./create_namespace":4,"./registry":8}],4:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -466,7 +466,7 @@ module.exports = function(papa) {
         };
         if (!_conf.static_finder_created) {
           _conf.static_finder_created = true;
-          obj.conf.app.Namespace(obj.conf.objectTypeName, function(exports) {
+          obj.conf.papa.Namespace(obj.conf.objectTypeName, function(exports) {
             exports.get = finder;
             exports.find = finder;
             exports.latest = function() {

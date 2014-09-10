@@ -138,8 +138,8 @@
 							mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
 						}
 
-						if (mixinConf && !mixinConf.app) {
-							mixinConf.app = papa;
+						if (mixinConf && !mixinConf.papa) {
+							mixinConf.papa = papa;
 						}
 
 						if (typeof mixin.namespace === 'string') {
