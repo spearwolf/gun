@@ -163,6 +163,8 @@
 				}
 
 				_mixins.forEach(function(mixin) {
+					var key;
+
 					if (typeof mixin === 'function') {
 						mixin(mixin_args(instance, apiInstance));
 					} else if (typeof mixin === 'object') {
@@ -174,6 +176,27 @@
 							});
 						} else if (typeof mixin.dependsOn === 'string') {
 							includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
+						}
+
+						// define
+						if (typeof mixin.define === 'object') {
+							for (key in mixin.define) {
+								if (mixin.define.hasOwnProperty(key) && 'function' === typeof mixin.define[key]) {
+									instance[key] = mixin.define[key].call(instance, instance);
+								}
+							}
+						}
+
+						// on
+						if (typeof mixin.on === 'object') {
+							if (!instance.papa.kindOf('events')) {
+								includeMixin('events', apiInstance, originalObjectTypeName);
+							}
+							for (key in mixin.on) {
+								if (mixin.on.hasOwnProperty(key) && 'function' === typeof mixin.on[key]) {
+									instance.on(key, mixin.on[key]);
+								}
+							}
 						}
 
 						// initialize
