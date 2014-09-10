@@ -94,7 +94,7 @@
 				}
 
 				_mixins.forEach(function(mixin) {
-					var key;
+					var key, val;
 
 					// dependsOn ========================================== {{{
 					if (Array.isArray(mixin.dependsOn)) {
@@ -103,6 +103,21 @@
 						});
 					} else if (typeof mixin.dependsOn === 'string') {
 						includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
+					}
+					// ---------------------------------------------------- }}}
+
+					// defaults =========================================== {{{
+					if (typeof mixin.defaults === 'object') {
+						for (key in mixin.defaults) {
+							if (mixin.defaults.hasOwnProperty(key) && 'undefined' === typeof instance[key]) {
+							   	if ('function' === typeof mixin.defaults[key]) {
+									val = mixin.defaults[key].call(instance, instance);
+								} else {
+									val = mixin.defaults[key];
+								}
+								instance[key] = val;
+							}
+						}
 					}
 					// ---------------------------------------------------- }}}
 

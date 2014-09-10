@@ -23,11 +23,15 @@
         namespace: 'pos',
         factory: true,
 
+        defaults: {
+          incValue: 1
+        },
+
         exports: {
           inc: function() {
-            this.x++;
-            this.y++;
-            this.z++;
+            this.x += this.incValue;
+            this.y += this.incValue;
+            this.z += this.incValue;
           },
           set: function(x, y, z) {
             this.x = x;

@@ -7,7 +7,7 @@
 	  , create_module = _dereq_('./papa/create_module')
 	  , papa = {
 
-			VERSION: '0.4.1',
+			VERSION: '0.4.2',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
@@ -126,7 +126,7 @@
 				}
 
 				_mixins.forEach(function(mixin) {
-					var key;
+					var key, val;
 
 					// dependsOn ========================================== {{{
 					if (Array.isArray(mixin.dependsOn)) {
@@ -135,6 +135,21 @@
 						});
 					} else if (typeof mixin.dependsOn === 'string') {
 						includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
+					}
+					// ---------------------------------------------------- }}}
+
+					// defaults =========================================== {{{
+					if (typeof mixin.defaults === 'object') {
+						for (key in mixin.defaults) {
+							if (mixin.defaults.hasOwnProperty(key) && 'undefined' === typeof instance[key]) {
+							   	if ('function' === typeof mixin.defaults[key]) {
+									val = mixin.defaults[key].call(instance, instance);
+								} else {
+									val = mixin.defaults[key];
+								}
+								instance[key] = val;
+							}
+						}
 					}
 					// ---------------------------------------------------- }}}
 

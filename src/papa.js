@@ -6,7 +6,7 @@
 	  , create_module = require('./papa/create_module')
 	  , papa = {
 
-			VERSION: '0.4.1',
+			VERSION: '0.4.2',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
