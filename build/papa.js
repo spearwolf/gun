@@ -140,6 +140,7 @@
 			}
 
 			var _mixins = papa._mixins_registry.findAll(objectTypeName);
+
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
 				if (!apiInstance.papa) {
@@ -153,6 +154,7 @@
 						return apiInstance.papa.mixins.indexOf(mixinName) > -1;
 					};
 				}
+
 				if (!apiInstance.papa.mixins) {
 					apiInstance.papa.mixins = [objectTypeName];
 				} else {
@@ -165,68 +167,78 @@
 				_mixins.forEach(function(mixin) {
 					var key;
 
-					if (typeof mixin === 'function') {
-						mixin(mixin_args(instance, apiInstance));
-					} else if (typeof mixin === 'object') {
+					// dependsOn ========================================== {{{
+					if (Array.isArray(mixin.dependsOn)) {
+						mixin.dependsOn.forEach(function(_typeName) {
+							includeMixin(_typeName, apiInstance, originalObjectTypeName);
+						});
+					} else if (typeof mixin.dependsOn === 'string') {
+						includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
+					}
+					// ---------------------------------------------------- }}}
 
-						// dependsOn
-						if (Array.isArray(mixin.dependsOn)) {
-							mixin.dependsOn.forEach(function(_typeName) {
-								includeMixin(_typeName, apiInstance, originalObjectTypeName);
-							});
-						} else if (typeof mixin.dependsOn === 'string') {
-							includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
-						}
-
-						// define
-						if (typeof mixin.define === 'object') {
-							for (key in mixin.define) {
-								if (mixin.define.hasOwnProperty(key) && 'function' === typeof mixin.define[key]) {
-									instance[key] = mixin.define[key].call(instance, instance);
-								}
-							}
-						}
-
-						// on
-						if (typeof mixin.on === 'object') {
-							if (!instance.papa.kindOf('events')) {
-								includeMixin('events', apiInstance, originalObjectTypeName);
-							}
-							for (key in mixin.on) {
-								if (mixin.on.hasOwnProperty(key) && 'function' === typeof mixin.on[key]) {
-									instance.on(key, mixin.on[key]);
-								}
-							}
-						}
-
-						// initialize
-						if (typeof mixin.initialize === 'function') {
-							var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
-							if (!mixinConf) {
-								mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
-							}
-							if (mixinConf && !mixinConf.app) {
-								mixinConf.app = papa;
-							}
-							if (typeof mixin.namespace === 'string') {
-								exports = create_module.CreateObjPath(mixin.namespace, apiInstance);
-								mixin.initialize(mixin_args(instance, exports, mixinConf));
-							} else {
-								mixin.initialize(mixin_args(instance, apiInstance, mixinConf));
+					// define ============================================= {{{
+					if (typeof mixin.define === 'object') {
+						for (key in mixin.define) {
+							if (mixin.define.hasOwnProperty(key) && 'function' === typeof mixin.define[key]) {
+								instance[key] = mixin.define[key].call(instance, instance);
 							}
 						}
 					}
-				});
+					// ---------------------------------------------------- }}}
+
+					// on ================================================= {{{
+					if (typeof mixin.on === 'object') {
+						if (!instance.papa.kindOf('events')) {
+							includeMixin('events', apiInstance, originalObjectTypeName);
+						}
+						for (key in mixin.on) {
+							if (mixin.on.hasOwnProperty(key) && 'function' === typeof mixin.on[key]) {
+								instance.on(key, mixin.on[key]);
+							}
+						}
+					}
+					// ---------------------------------------------------- }}}
+
+					// initialize ========================================= {{{
+					if (typeof mixin.initialize === 'function') {
+
+						var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
+
+						if (!mixinConf) {
+							mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
+						}
+
+						if (mixinConf && !mixinConf.app) {
+							mixinConf.app = papa;
+						}
+
+						if (typeof mixin.namespace === 'string') {
+
+							exports = create_module.CreateObjPath(mixin.namespace, apiInstance);
+							mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
+
+						} else {
+							mixin.initialize.call(instance, mixin_args(instance, apiInstance, mixinConf));
+						}
+					}
+					// ---------------------------------------------------- }}}
+
+				});  // for each mixin
 			}
 		}
 
 		var api = function(objectTypeName, callback) {
 
 			var mixin = callback();
+
 			if ('function' === typeof mixin) {
 				mixin = { initialize: mixin };
 			}
-			mixin.objectTypeName = objectTypeName;
+
+			if ('string' !== typeof mixin.objectTypeName) {
+				mixin.objectTypeName = objectTypeName;
+			}
 
 			papa._mixins_registry.push(objectTypeName, mixin);
 
