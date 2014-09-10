@@ -23,7 +23,7 @@
         }
     };
 
-    var createModule = function(name, root, createModFn) {
+    var createNamespace = function(name, root, createModFn) {
         if (arguments.length === 2) {
             createModFn = root;
             root = require('./root')();
@@ -49,7 +49,7 @@
 
     module.exports = {
         CreateObjPath: createObjPath,
-        Module: createModule
+        Namespace: createNamespace
     };
 
 })();

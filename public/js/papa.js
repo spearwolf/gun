@@ -2,15 +2,15 @@
 (function(){
 	"use strict";
 
-	var create_module = _dereq_('./papa/create_module')
+	var create_namespace = _dereq_('./papa/create_namespace')
 	  , create_mixin = _dereq_('./papa/create_mixin')
 	  , create_app = _dereq_('./papa/create_app')
 	  , papa = {
 
-			VERSION: '0.1.4',
+			VERSION: '0.2.0',
 
-			Module: create_module.Module,
-			CreateObjPath: create_module.CreateObjPath
+			Namespace: create_namespace.Namespace,
+			CreateObjPath: create_namespace.CreateObjPath
 		}
 	  ;
 
@@ -29,11 +29,11 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_module":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
+},{"./papa/create_app":2,"./papa/create_mixin":3,"./papa/create_namespace":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
-	var create_module = _dereq_('./create_module')
+	var create_namespace = _dereq_('./create_namespace')
 	  , create_mixin = _dereq_('./create_mixin')
 	  , setup_registry = _dereq_('./registry')
 	  ;
@@ -46,8 +46,8 @@
 			var app = {};
 			Object.defineProperty(app, '_papa', { value: papa });
 
-			app.Module = function(name, createModFn) {
-				return create_module.Module(name, app, createModFn);
+			app.Namespace = function(name, createModFn) {
+				return create_namespace.Namespace(name, app, createModFn);
 			};
 
 			app.Mixin = create_mixin(app);
@@ -68,11 +68,11 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_mixin":3,"./create_module":4,"./registry":8}],3:[function(_dereq_,module,exports){
+},{"./create_mixin":3,"./create_namespace":4,"./registry":8}],3:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
-	var create_module = _dereq_('./create_module')
+	var create_namespace = _dereq_('./create_namespace')
 	  , setup_registry = _dereq_('./registry')
 	  ;
 
@@ -215,7 +215,7 @@
 
 						if (typeof mixin.namespace === 'string') {
 
-							exports = create_module.CreateObjPath(mixin.namespace, apiInstance);
+							exports = create_namespace.CreateObjPath(mixin.namespace, apiInstance);
 							mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
 
 						} else {
@@ -244,7 +244,7 @@
 
 			// factory
 			if (mixin.factory) {
-				papa.Module(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
+				papa.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
 					return function(obj) {
 						return createNewObject(objectTypeName, obj);
 					};
@@ -261,7 +261,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_module":4,"./registry":8}],4:[function(_dereq_,module,exports){
+},{"./create_namespace":4,"./registry":8}],4:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -287,7 +287,7 @@
         }
     };
 
-    var createModule = function(name, root, createModFn) {
+    var createNamespace = function(name, root, createModFn) {
         if (arguments.length === 2) {
             createModFn = root;
             root = _dereq_('./root')();
@@ -313,7 +313,7 @@
 
     module.exports = {
         CreateObjPath: createObjPath,
-        Module: createModule
+        Namespace: createNamespace
     };
 
 })();
@@ -466,7 +466,7 @@ module.exports = function(papa) {
         };
         if (!_conf.static_finder_created) {
           _conf.static_finder_created = true;
-          obj.conf.app.Module(obj.conf.objectTypeName, function(exports) {
+          obj.conf.app.Namespace(obj.conf.objectTypeName, function(exports) {
             exports.get = finder;
             exports.find = finder;
             exports.latest = function() {

@@ -1,15 +1,15 @@
 (function(){
 	"use strict";
 
-	var create_module = require('./papa/create_module')
+	var create_namespace = require('./papa/create_namespace')
 	  , create_mixin = require('./papa/create_mixin')
 	  , create_app = require('./papa/create_app')
 	  , papa = {
 
-			VERSION: '0.1.4',
+			VERSION: '0.2.0',
 
-			Module: create_module.Module,
-			CreateObjPath: create_module.CreateObjPath
+			Namespace: create_namespace.Namespace,
+			CreateObjPath: create_namespace.CreateObjPath
 		}
 	  ;
 

@@ -5,9 +5,10 @@
   <title>papa.js</title>
   <script type="text/javascript" src="./js/papa.js"></script>
   <script>
+
     window.app = papa.App('foo');
 
-    app.Module('bar.plah', function(exports){
+    app.Namespace('bar.plah', function(exports){
 
       exports.x = 1;
 
@@ -35,6 +36,7 @@
     });
 
     console.log('papa', papa);
+
   </script>
 </head>
 <body>

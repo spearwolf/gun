@@ -31,7 +31,7 @@ module.exports = (papa) ->
             unless _conf.static_finder_created
                 _conf.static_finder_created = yes
 
-                obj.conf.app.Module obj.conf.objectTypeName, (exports) ->
+                obj.conf.app.Namespace obj.conf.objectTypeName, (exports) ->
                     exports.get = finder
                     exports.find = finder
                     exports.latest = -> _conf.latest_obj

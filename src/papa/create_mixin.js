@@ -1,7 +1,7 @@
 (function(){
     "use strict";
 
-	var create_module = require('./create_module')
+	var create_namespace = require('./create_namespace')
 	  , setup_registry = require('./registry')
 	  ;
 
@@ -144,7 +144,7 @@
 
 						if (typeof mixin.namespace === 'string') {
 
-							exports = create_module.CreateObjPath(mixin.namespace, apiInstance);
+							exports = create_namespace.CreateObjPath(mixin.namespace, apiInstance);
 							mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
 
 						} else {
@@ -173,7 +173,7 @@
 
 			// factory
 			if (mixin.factory) {
-				papa.Module(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
+				papa.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
 					return function(obj) {
 						return createNewObject(objectTypeName, obj);
 					};

@@ -1,7 +1,7 @@
 (function(){
 	"use strict";
 
-	var create_module = require('./create_module')
+	var create_namespace = require('./create_namespace')
 	  , create_mixin = require('./create_mixin')
 	  , setup_registry = require('./registry')
 	  ;
@@ -14,8 +14,8 @@
 			var app = {};
 			Object.defineProperty(app, '_papa', { value: papa });
 
-			app.Module = function(name, createModFn) {
-				return create_module.Module(name, app, createModFn);
+			app.Namespace = function(name, createModFn) {
+				return create_namespace.Namespace(name, app, createModFn);
 			};
 
 			app.Mixin = create_mixin(app);
