@@ -20,17 +20,24 @@
 
     foo.Mixin('position', function(){
       return {
-        namespace: 'position',
+        namespace: 'pos',
         factory: true,
-        dependsOn: 'events',
 
-        initialize: function(o) {
+        exports: {
+          inc: function() {
+            this.x++;
+            this.y++;
+            this.z++;
+          },
+          set: function(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+          }
+        },
 
-          o.exports.set = function(x, y, z) {
-            o.self.x = x;
-            o.self.y = y;
-            o.self.z = z;
-          };
+        initialize: function(o) {
+          o.exports.set(1,2,3);
         }
       };
     });

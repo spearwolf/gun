@@ -5,11 +5,11 @@
 
         papa.Mixin('events', function() {
 
-            return function(obj) {
+            return function(o) {
 
                 var callbacks = { _id: 0 };
 
-                obj.exports.on = function(eventName, prio, fn) {
+                o.exports.on = function(eventName, prio, fn) {
 
                     if (arguments.length === 2) {
                         fn = prio;
@@ -28,7 +28,7 @@
                     return fnId;
                 };
 
-                obj.exports.off = function(id) {
+                o.exports.off = function(id) {
                     var cb, i, j, _callbacks, keys = Object.keys(callbacks);
 					for (j = 0; j < keys.length; j++) {
 						_callbacks = callbacks[keys[j]];
@@ -42,11 +42,11 @@
                     }
                 };
 
-                obj.exports.emit = function(eventName /* arguments.. */) {
+                o.exports.emit = function(eventName /* arguments.. */) {
                     var args = Array.prototype.slice.call(arguments, 1);
                     if (eventName in callbacks) {
                         callbacks[eventName].forEach(function(cb){
-                            cb.fn.apply(obj.current, args);
+                            cb.fn.apply(o.current, args);
                         });
                     }
                 };
