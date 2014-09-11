@@ -7,7 +7,7 @@
 	  , create_module = _dereq_('./gun/create_module')
 	  , gun = {
 
-			VERSION: '0.6.0',
+			VERSION: '0.6.1',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
@@ -92,37 +92,37 @@
 			});
 		}
 
-		function _initialize(objectTypeName, apiInstance, originalObjectTypeName) {
+		function _initialize(objectTypeName, gunInstance, originalObjectTypeName) {
 			var exports;
-			var instance = apiInstance;
+			var instance = gunInstance;
 
-			if (apiInstance.gun && apiInstance.gun.instance) {
-				instance = apiInstance.gun.instance;
+			if (gunInstance.gun && gunInstance.gun.instance) {
+				instance = gunInstance.gun.instance;
 			}
 
 			var _mixins = gun._mixins_registry.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
-				if (!apiInstance.gun) {
-					Object.defineProperty(apiInstance, 'gun', {
+				if (!gunInstance.gun) {
+					Object.defineProperty(gunInstance, 'gun', {
 						value: Object.create(null)
 					});
-					apiInstance.gun.instance = instance;
-					apiInstance.gun.apiInstance = apiInstance;
-					apiInstance.gun.kindOf = function(mixinName) {
-						if (!apiInstance.gun.mixins) return false;
-						return apiInstance.gun.mixins.indexOf(mixinName) > -1;
+					gunInstance.gun.instance = instance;
+					gunInstance.gun.gunInstance = gunInstance;
+					gunInstance.gun.kindOf = function(mixinName) {
+						if (!gunInstance.gun.mixins) return false;
+						return gunInstance.gun.mixins.indexOf(mixinName) > -1;
 					};
 				}
 
-				if (!apiInstance.gun.mixins) {
-					apiInstance.gun.mixins = [objectTypeName];
+				if (!gunInstance.gun.mixins) {
+					gunInstance.gun.mixins = [objectTypeName];
 				} else {
-					if (apiInstance.gun.mixins.indexOf(objectTypeName) > -1) {
+					if (gunInstance.gun.mixins.indexOf(objectTypeName) > -1) {
 						return;
 					}
-					apiInstance.gun.mixins.push(objectTypeName);
+					gunInstance.gun.mixins.push(objectTypeName);
 				}
 
 				_mixins.forEach(function(mixin) {
@@ -131,10 +131,10 @@
 					// dependsOn ========================================== {{{
 					if (Array.isArray(mixin.dependsOn)) {
 						mixin.dependsOn.forEach(function(_typeName) {
-							includeMixin(_typeName, apiInstance, originalObjectTypeName);
+							includeMixin(_typeName, gunInstance, originalObjectTypeName);
 						});
 					} else if (typeof mixin.dependsOn === 'string') {
-						includeMixin(mixin.dependsOn, apiInstance, originalObjectTypeName);
+						includeMixin(mixin.dependsOn, gunInstance, originalObjectTypeName);
 					}
 					// ---------------------------------------------------- }}}
 
@@ -171,7 +171,7 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjPath(mixin.namespace, apiInstance) : apiInstance;
+					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjPath(mixin.namespace, gunInstance) : gunInstance;
 
 					// exports ============================================ {{{
 					// jshint ignore:start
@@ -182,7 +182,7 @@
 									return function(){
 									   return _method.apply(_api.gun.instance, arguments);
 									};
-								})(mixin.exports[key], apiInstance);
+								})(mixin.exports[key], gunInstance);
 							}
 						}
 					}
@@ -192,7 +192,7 @@
 					// on ================================================= {{{
 					if (typeof mixin.on === 'object') {
 						if (!instance.gun.kindOf('events')) {
-							includeMixin('events', apiInstance, originalObjectTypeName);
+							includeMixin('events', gunInstance, originalObjectTypeName);
 						}
 						for (key in mixin.on) {
 							if (mixin.on.hasOwnProperty(key)) {

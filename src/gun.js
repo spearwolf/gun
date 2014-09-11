@@ -6,7 +6,7 @@
 	  , create_module = require('./gun/create_module')
 	  , gun = {
 
-			VERSION: '0.6.0',
+			VERSION: '0.6.1',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
