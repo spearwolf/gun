@@ -65,13 +65,13 @@
 	};
 
 
-	module.exports = function(papa, propName) {
-		if (!papa._papa.hasOwnProperty(propName)) {
-			Object.defineProperty(papa._papa, propName, { value: new Registry() });
+	module.exports = function(gun, propName) {
+		if (!gun._gun.hasOwnProperty(propName)) {
+			Object.defineProperty(gun._gun, propName, { value: new Registry() });
 		}
-		if (papa._papa !== papa) {
-			if (!papa.hasOwnProperty(propName)) {
-				Object.defineProperty(papa, propName, { value: new Registry(papa._papa[propName]) });
+		if (gun._gun !== gun) {
+			if (!gun.hasOwnProperty(propName)) {
+				Object.defineProperty(gun, propName, { value: new Registry(gun._gun[propName]) });
 			}
 		}
 	};

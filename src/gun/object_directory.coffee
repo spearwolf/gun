@@ -1,6 +1,6 @@
-module.exports = (papa) ->
+module.exports = (gun) ->
 
-    papa.Mixin 'object_directory', ->
+    gun.Mixin 'object_directory', ->
 
 
         build_obj_id = (self, conf) ->
@@ -31,7 +31,7 @@ module.exports = (papa) ->
             unless _conf.static_finder_created
                 _conf.static_finder_created = yes
 
-                obj.conf.papa.Namespace obj.conf.objectTypeName, (exports) ->
+                obj.conf.gun.Namespace obj.conf.objectTypeName, (exports) ->
                     exports.get = finder
                     exports.find = finder
                     exports.latest = -> _conf.latest_obj

@@ -6,13 +6,13 @@
 	  , setup_registry = require('./registry')
 	  ;
 
-	module.exports = function(papa) {
+	module.exports = function(gun) {
 
-		setup_registry(papa, '_modules_registry');
+		setup_registry(gun, '_modules_registry');
 
 		function create_mod_root() {
 			var mod = {};
-			Object.defineProperty(mod, '_papa', { value: papa });
+			Object.defineProperty(mod, '_gun', { value: gun });
 
 			mod.Namespace = function(name, createModFn) {
 				return create_namespace.Namespace(name, mod, createModFn);
@@ -24,9 +24,9 @@
 		}
 
 		return function(modName) {
-			var mod = papa._modules_registry.get(modName);
+			var mod = gun._modules_registry.get(modName);
 			if (!mod) {
-				mod = papa._modules_registry.set(modName, create_mod_root());
+				mod = gun._modules_registry.set(modName, create_mod_root());
 			}
 
 			return mod;

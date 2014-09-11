@@ -1,11 +1,11 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.papa=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.gun=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
-	var create_namespace = _dereq_('./papa/create_namespace')
-	  , create_mixin = _dereq_('./papa/create_mixin')
-	  , create_module = _dereq_('./papa/create_module')
-	  , papa = {
+	var create_namespace = _dereq_('./gun/create_namespace')
+	  , create_mixin = _dereq_('./gun/create_mixin')
+	  , create_module = _dereq_('./gun/create_module')
+	  , gun = {
 
 			VERSION: '0.4.2',
 
@@ -14,22 +14,22 @@
 		}
 	  ;
 
-	Object.defineProperty(papa, '_papa', { value: papa });
+	Object.defineProperty(gun, '_gun', { value: gun });
 
-	_dereq_('./papa/log')(papa);
+	_dereq_('./gun/log')(gun);
 
-	papa.Module = create_module(papa);
-	papa.Mixin = create_mixin(papa);
+	gun.Module = create_module(gun);
+	gun.Mixin = create_mixin(gun);
 
-	_dereq_('./papa/events')(papa);
-	_dereq_('./papa/object_directory.coffee')(papa);
+	_dereq_('./gun/events')(gun);
+	_dereq_('./gun/object_directory.coffee')(gun);
 
-	module.exports = papa;
+	module.exports = gun;
 
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./papa/create_mixin":2,"./papa/create_module":3,"./papa/create_namespace":4,"./papa/events":5,"./papa/log":6,"./papa/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
+},{"./gun/create_mixin":2,"./gun/create_module":3,"./gun/create_namespace":4,"./gun/events":5,"./gun/log":6,"./gun/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -37,10 +37,10 @@
 	  , setup_registry = _dereq_('./registry')
 	  ;
 
-	module.exports = function(papa) {
-		var log = papa._papa.Logger;
+	module.exports = function(gun) {
+		var log = gun._gun.Logger;
 
-		setup_registry(papa, '_mixins_registry');
+		setup_registry(gun, '_mixins_registry');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
 			if (Array.isArray(originalObjectTypeName)) {
@@ -65,8 +65,8 @@
 					obj = objInstance;
 				} else {
 					obj = Object.create(objInstance);
-					if (obj.papa) {
-						obj.papa.instance = obj;
+					if (obj.gun) {
+						obj.gun.instance = obj;
 					}
 				}
 				return includeMixin(objectTypeName, obj);
@@ -87,7 +87,7 @@
 				current: {
 					enumerable: true,
 					get: function() {
-						return instance.papa.instance;
+						return instance.gun.instance;
 					} }
 			});
 		}
@@ -96,33 +96,33 @@
 			var exports;
 			var instance = apiInstance;
 
-			if (apiInstance.papa && apiInstance.papa.instance) {
-				instance = apiInstance.papa.instance;
+			if (apiInstance.gun && apiInstance.gun.instance) {
+				instance = apiInstance.gun.instance;
 			}
 
-			var _mixins = papa._mixins_registry.findAll(objectTypeName);
+			var _mixins = gun._mixins_registry.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
-				if (!apiInstance.papa) {
-					Object.defineProperty(apiInstance, 'papa', {
+				if (!apiInstance.gun) {
+					Object.defineProperty(apiInstance, 'gun', {
 						value: Object.create(null)
 					});
-					apiInstance.papa.instance = instance;
-					apiInstance.papa.apiInstance = apiInstance;
-					apiInstance.papa.kindOf = function(mixinName) {
-						if (!apiInstance.papa.mixins) return false;
-						return apiInstance.papa.mixins.indexOf(mixinName) > -1;
+					apiInstance.gun.instance = instance;
+					apiInstance.gun.apiInstance = apiInstance;
+					apiInstance.gun.kindOf = function(mixinName) {
+						if (!apiInstance.gun.mixins) return false;
+						return apiInstance.gun.mixins.indexOf(mixinName) > -1;
 					};
 				}
 
-				if (!apiInstance.papa.mixins) {
-					apiInstance.papa.mixins = [objectTypeName];
+				if (!apiInstance.gun.mixins) {
+					apiInstance.gun.mixins = [objectTypeName];
 				} else {
-					if (apiInstance.papa.mixins.indexOf(objectTypeName) > -1) {
+					if (apiInstance.gun.mixins.indexOf(objectTypeName) > -1) {
 						return;
 					}
-					apiInstance.papa.mixins.push(objectTypeName);
+					apiInstance.gun.mixins.push(objectTypeName);
 				}
 
 				_mixins.forEach(function(mixin) {
@@ -180,7 +180,7 @@
 							if (mixin.exports.hasOwnProperty(key)) {
 								exports[key] = (function(_method, _api){
 									return function(){
-									   return _method.apply(_api.papa.instance, arguments);
+									   return _method.apply(_api.gun.instance, arguments);
 									};
 								})(mixin.exports[key], apiInstance);
 							}
@@ -191,7 +191,7 @@
 
 					// on ================================================= {{{
 					if (typeof mixin.on === 'object') {
-						if (!instance.papa.kindOf('events')) {
+						if (!instance.gun.kindOf('events')) {
 							includeMixin('events', apiInstance, originalObjectTypeName);
 						}
 						for (key in mixin.on) {
@@ -218,14 +218,14 @@
 					// initialize ========================================= {{{
 					if (typeof mixin.initialize === 'function') {
 
-						var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
+						var mixinConf = gun._mixins_registry.findOne(originalObjectTypeName, true);
 
 						if (!mixinConf) {
-							mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
+							mixinConf = gun._mixins_registry.findOne(objectTypeName, true);
 						}
 
-						if (mixinConf && !mixinConf.papa) {
-							mixinConf.papa = papa;
+						if (mixinConf && !mixinConf.gun) {
+							mixinConf.gun = gun;
 						}
 
 						try {
@@ -252,11 +252,11 @@
 				mixin.objectTypeName = objectTypeName;
 			}
 
-			papa._mixins_registry.push(objectTypeName, mixin);
+			gun._mixins_registry.push(objectTypeName, mixin);
 
 			// factory
 			if (mixin.factory) {
-				papa.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
+				gun.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
 					return function(obj) {
 						return createNewObject(objectTypeName, obj);
 					};
@@ -282,13 +282,13 @@
 	  , setup_registry = _dereq_('./registry')
 	  ;
 
-	module.exports = function(papa) {
+	module.exports = function(gun) {
 
-		setup_registry(papa, '_modules_registry');
+		setup_registry(gun, '_modules_registry');
 
 		function create_mod_root() {
 			var mod = {};
-			Object.defineProperty(mod, '_papa', { value: papa });
+			Object.defineProperty(mod, '_gun', { value: gun });
 
 			mod.Namespace = function(name, createModFn) {
 				return create_namespace.Namespace(name, mod, createModFn);
@@ -300,9 +300,9 @@
 		}
 
 		return function(modName) {
-			var mod = papa._modules_registry.get(modName);
+			var mod = gun._modules_registry.get(modName);
 			if (!mod) {
-				mod = papa._modules_registry.set(modName, create_mod_root());
+				mod = gun._modules_registry.set(modName, create_mod_root());
 			}
 
 			return mod;
@@ -373,9 +373,9 @@
 (function(){
     "use strict";
 
-    module.exports = function(papa) {
+    module.exports = function(gun) {
 
-        papa.Mixin('events', function() {
+        gun.Mixin('events', function() {
 
             return function(o) {
 
@@ -433,9 +433,9 @@
 (function(){
     "use strict";
 
-    module.exports = function(papa) {
+    module.exports = function(gun) {
 
-        var api = papa.Logger = {};
+        var api = gun.Logger = {};
 
         api.options = {
             DEBUG: true,
@@ -488,8 +488,8 @@
 // vim: et ts=4 sts=4 sw=4
 
 },{"./root":9}],7:[function(_dereq_,module,exports){
-module.exports = function(papa) {
-  return papa.Mixin('object_directory', function() {
+module.exports = function(gun) {
+  return gun.Mixin('object_directory', function() {
     var build_obj_id;
     build_obj_id = function(self, conf) {
       if (self.name) {
@@ -517,7 +517,7 @@ module.exports = function(papa) {
         };
         if (!_conf.static_finder_created) {
           _conf.static_finder_created = true;
-          obj.conf.papa.Namespace(obj.conf.objectTypeName, function(exports) {
+          obj.conf.gun.Namespace(obj.conf.objectTypeName, function(exports) {
             exports.get = finder;
             exports.find = finder;
             exports.latest = function() {
@@ -601,13 +601,13 @@ module.exports = function(papa) {
 	};
 
 
-	module.exports = function(papa, propName) {
-		if (!papa._papa.hasOwnProperty(propName)) {
-			Object.defineProperty(papa._papa, propName, { value: new Registry() });
+	module.exports = function(gun, propName) {
+		if (!gun._gun.hasOwnProperty(propName)) {
+			Object.defineProperty(gun._gun, propName, { value: new Registry() });
 		}
-		if (papa._papa !== papa) {
-			if (!papa.hasOwnProperty(propName)) {
-				Object.defineProperty(papa, propName, { value: new Registry(papa._papa[propName]) });
+		if (gun._gun !== gun) {
+			if (!gun.hasOwnProperty(propName)) {
+				Object.defineProperty(gun, propName, { value: new Registry(gun._gun[propName]) });
 			}
 		}
 	};

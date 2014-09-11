@@ -1,9 +1,9 @@
 (function(){
     "use strict";
 
-    module.exports = function(papa) {
+    module.exports = function(gun) {
 
-        papa.Mixin('events', function() {
+        gun.Mixin('events', function() {
 
             return function(o) {
 

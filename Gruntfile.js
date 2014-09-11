@@ -10,12 +10,12 @@ module.exports = function(grunt) {
         clean: [ "build/" ],
 
         browserify: {
-            papa: {
-                src: 'src/papa.js',
-                dest: 'build/papa.js',
+            gun: {
+                src: 'src/gun.js',
+                dest: 'build/gun.js',
                 options: {
                     bundleOptions: {
-                        standalone: "papa"
+                        standalone: "gun"
                     },
                     transform: ['coffeeify']
                 }
@@ -25,9 +25,9 @@ module.exports = function(grunt) {
         uglify: {
             min: {
                 files: {
-                    'build/papa.min.js': [
+                    'build/gun.min.js': [
                         'vendor/*.js',
-                        'build/papa.js'
+                        'build/gun.js'
                     ]
                 }
             }

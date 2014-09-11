@@ -5,10 +5,10 @@
 	  , setup_registry = require('./registry')
 	  ;
 
-	module.exports = function(papa) {
-		var log = papa._papa.Logger;
+	module.exports = function(gun) {
+		var log = gun._gun.Logger;
 
-		setup_registry(papa, '_mixins_registry');
+		setup_registry(gun, '_mixins_registry');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
 			if (Array.isArray(originalObjectTypeName)) {
@@ -33,8 +33,8 @@
 					obj = objInstance;
 				} else {
 					obj = Object.create(objInstance);
-					if (obj.papa) {
-						obj.papa.instance = obj;
+					if (obj.gun) {
+						obj.gun.instance = obj;
 					}
 				}
 				return includeMixin(objectTypeName, obj);
@@ -55,7 +55,7 @@
 				current: {
 					enumerable: true,
 					get: function() {
-						return instance.papa.instance;
+						return instance.gun.instance;
 					} }
 			});
 		}
@@ -64,33 +64,33 @@
 			var exports;
 			var instance = apiInstance;
 
-			if (apiInstance.papa && apiInstance.papa.instance) {
-				instance = apiInstance.papa.instance;
+			if (apiInstance.gun && apiInstance.gun.instance) {
+				instance = apiInstance.gun.instance;
 			}
 
-			var _mixins = papa._mixins_registry.findAll(objectTypeName);
+			var _mixins = gun._mixins_registry.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
-				if (!apiInstance.papa) {
-					Object.defineProperty(apiInstance, 'papa', {
+				if (!apiInstance.gun) {
+					Object.defineProperty(apiInstance, 'gun', {
 						value: Object.create(null)
 					});
-					apiInstance.papa.instance = instance;
-					apiInstance.papa.apiInstance = apiInstance;
-					apiInstance.papa.kindOf = function(mixinName) {
-						if (!apiInstance.papa.mixins) return false;
-						return apiInstance.papa.mixins.indexOf(mixinName) > -1;
+					apiInstance.gun.instance = instance;
+					apiInstance.gun.apiInstance = apiInstance;
+					apiInstance.gun.kindOf = function(mixinName) {
+						if (!apiInstance.gun.mixins) return false;
+						return apiInstance.gun.mixins.indexOf(mixinName) > -1;
 					};
 				}
 
-				if (!apiInstance.papa.mixins) {
-					apiInstance.papa.mixins = [objectTypeName];
+				if (!apiInstance.gun.mixins) {
+					apiInstance.gun.mixins = [objectTypeName];
 				} else {
-					if (apiInstance.papa.mixins.indexOf(objectTypeName) > -1) {
+					if (apiInstance.gun.mixins.indexOf(objectTypeName) > -1) {
 						return;
 					}
-					apiInstance.papa.mixins.push(objectTypeName);
+					apiInstance.gun.mixins.push(objectTypeName);
 				}
 
 				_mixins.forEach(function(mixin) {
@@ -148,7 +148,7 @@
 							if (mixin.exports.hasOwnProperty(key)) {
 								exports[key] = (function(_method, _api){
 									return function(){
-									   return _method.apply(_api.papa.instance, arguments);
+									   return _method.apply(_api.gun.instance, arguments);
 									};
 								})(mixin.exports[key], apiInstance);
 							}
@@ -159,7 +159,7 @@
 
 					// on ================================================= {{{
 					if (typeof mixin.on === 'object') {
-						if (!instance.papa.kindOf('events')) {
+						if (!instance.gun.kindOf('events')) {
 							includeMixin('events', apiInstance, originalObjectTypeName);
 						}
 						for (key in mixin.on) {
@@ -186,14 +186,14 @@
 					// initialize ========================================= {{{
 					if (typeof mixin.initialize === 'function') {
 
-						var mixinConf = papa._mixins_registry.findOne(originalObjectTypeName, true);
+						var mixinConf = gun._mixins_registry.findOne(originalObjectTypeName, true);
 
 						if (!mixinConf) {
-							mixinConf = papa._mixins_registry.findOne(objectTypeName, true);
+							mixinConf = gun._mixins_registry.findOne(objectTypeName, true);
 						}
 
-						if (mixinConf && !mixinConf.papa) {
-							mixinConf.papa = papa;
+						if (mixinConf && !mixinConf.gun) {
+							mixinConf.gun = gun;
 						}
 
 						try {
@@ -220,11 +220,11 @@
 				mixin.objectTypeName = objectTypeName;
 			}
 
-			papa._mixins_registry.push(objectTypeName, mixin);
+			gun._mixins_registry.push(objectTypeName, mixin);
 
 			// factory
 			if (mixin.factory) {
-				papa.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
+				gun.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
 					return function(obj) {
 						return createNewObject(objectTypeName, obj);
 					};

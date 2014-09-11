@@ -1,9 +1,9 @@
 (function(){
     "use strict";
 
-    module.exports = function(papa) {
+    module.exports = function(gun) {
 
-        var api = papa.Logger = {};
+        var api = gun.Logger = {};
 
         api.options = {
             DEBUG: true,
