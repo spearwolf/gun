@@ -1,9 +1,11 @@
 (function(){
     "use strict";
 
+	var map = require('./map');
+
 	function Registry(parent) {
 		this.parent = parent;
-		this.data = new Map();
+		this.data = map.create();
 	}
 
 	Registry.prototype.get = function(key) {

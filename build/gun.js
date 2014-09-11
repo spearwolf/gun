@@ -7,7 +7,7 @@
 	  , create_module = _dereq_('./gun/create_module')
 	  , gun = {
 
-			VERSION: '0.4.2',
+			VERSION: '0.6.0',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjPath: create_namespace.CreateObjPath
@@ -29,7 +29,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./gun/create_mixin":2,"./gun/create_module":3,"./gun/create_namespace":4,"./gun/events":5,"./gun/log":6,"./gun/object_directory.coffee":7}],2:[function(_dereq_,module,exports){
+},{"./gun/create_mixin":2,"./gun/create_module":3,"./gun/create_namespace":4,"./gun/events":5,"./gun/log":6,"./gun/object_directory.coffee":8}],2:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -264,7 +264,7 @@
 			}
 		};
 
-		api.Include = includeMixin;
+		api.Inject = includeMixin;
 		api.NewObject = createNewObject;
 
 		return api;
@@ -273,7 +273,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_namespace":4,"./registry":8}],3:[function(_dereq_,module,exports){
+},{"./create_namespace":4,"./registry":9}],3:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
@@ -312,7 +312,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_mixin":2,"./create_namespace":4,"./registry":8}],4:[function(_dereq_,module,exports){
+},{"./create_mixin":2,"./create_namespace":4,"./registry":9}],4:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -369,7 +369,7 @@
 
 })();
 
-},{"./root":9}],5:[function(_dereq_,module,exports){
+},{"./root":10}],5:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -487,7 +487,28 @@
 })();
 // vim: et ts=4 sts=4 sw=4
 
-},{"./root":9}],7:[function(_dereq_,module,exports){
+},{"./root":10}],7:[function(_dereq_,module,exports){
+(function(){
+    "use strict";
+
+    if (typeof Map === 'undefined') {
+
+        module.exports.create = function() {
+            return Object.create(null);
+        };
+
+    } else {
+
+        module.exports.create = function() {
+            return new Map();
+        };
+
+    }
+
+})();
+// vim: et ts=4 sts=4 sw=4
+
+},{}],8:[function(_dereq_,module,exports){
 module.exports = function(gun) {
   return gun.Mixin('object_directory', function() {
     var build_obj_id;
@@ -533,13 +554,15 @@ module.exports = function(gun) {
 
 
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
+	var map = _dereq_('./map');
+
 	function Registry(parent) {
 		this.parent = parent;
-		this.data = new Map();
+		this.data = map.create();
 	}
 
 	Registry.prototype.get = function(key) {
@@ -615,7 +638,7 @@ module.exports = function(gun) {
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{}],9:[function(_dereq_,module,exports){
+},{"./map":7}],10:[function(_dereq_,module,exports){
 (function (global){
 (function(){
     "use strict";
