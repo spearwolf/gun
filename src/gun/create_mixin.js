@@ -60,6 +60,21 @@
 			});
 		}
 
+		function create_alias_method(_super, _alias, _gun) {
+			if (typeof _super === 'undefined') {
+				_super = function(){};
+			}
+			return function() {
+				return _alias.apply(_gun.gun.instance, [_super].concat(Array.prototype.slice.call(arguments, 0)));
+			};
+		}
+
+		function create_gun_instance_method(_method, _gun) {
+			return function(){
+			   return _method.apply(_gun.gun.instance, arguments);
+			};
+		}
+
 		function _initialize(objectTypeName, gunInstance, originalObjectTypeName) {
 			var exports;
 			var instance = gunInstance;
@@ -142,19 +157,13 @@
 					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjPath(mixin.namespace, gunInstance) : gunInstance;
 
 					// exports ============================================ {{{
-					// jshint ignore:start
 					if (typeof mixin.exports === 'object') {
 						for (key in mixin.exports) {
 							if (mixin.exports.hasOwnProperty(key)) {
-								exports[key] = (function(_method, _api){
-									return function(){
-									   return _method.apply(_api.gun.instance, arguments);
-									};
-								})(mixin.exports[key], gunInstance);
+								exports[key] = create_gun_instance_method(mixin.exports[key], gunInstance);
 							}
 						}
 					}
-					// jshint ignore:end
 					// ---------------------------------------------------- }}}
 
 					// on ================================================= {{{
@@ -174,7 +183,7 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					// TODO
+					// alias_method ======================================= {{{
 					//
 					// alias_method: {
 					//	   foo: function(super, ...) { ... }
@@ -182,6 +191,22 @@
 					//         ...
 					//     }]
 					// }
+					if (typeof mixin.alias_method === 'object') {
+						for (key in mixin.alias_method) {
+							if (mixin.alias_method.hasOwnProperty(key)) {
+								val = typeof mixin.alias_method[key];
+								if (Array.isArray(val)) {
+									instance[val[0]] = instance[key];
+									val = val[1];
+								}
+								if ('function' === typeof val) {
+									instance[key] = create_alias_method(instance[key], val, gunInstance);
+								}
+							}
+						}
+					}
+
+					// ---------------------------------------------------- }}}
 
 					// initialize ========================================= {{{
 					if (typeof mixin.initialize === 'function') {
