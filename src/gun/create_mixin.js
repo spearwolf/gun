@@ -232,7 +232,7 @@
 			}
 		};
 
-		api.Include = includeMixin;
+		api.Inject = includeMixin;
 		api.NewObject = createNewObject;
 
 		return api;
