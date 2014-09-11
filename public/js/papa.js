@@ -143,7 +143,11 @@
 						for (key in mixin.defaults) {
 							if (mixin.defaults.hasOwnProperty(key) && 'undefined' === typeof instance[key]) {
 							   	if ('function' === typeof mixin.defaults[key]) {
-									val = mixin.defaults[key].call(instance, instance);
+									try {
+										val = mixin.defaults[key].call(instance, instance);
+									} catch (err) {
+										log.error(err);
+									}
 								} else {
 									val = mixin.defaults[key];
 								}
@@ -157,7 +161,11 @@
 					if (typeof mixin.define === 'object') {
 						for (key in mixin.define) {
 							if (mixin.define.hasOwnProperty(key) && 'function' === typeof mixin.define[key]) {
-								instance[key] = mixin.define[key].call(instance, instance);
+								try {
+									instance[key] = mixin.define[key].call(instance, instance);
+								} catch (err) {
+									log.error(err);
+								}
 							}
 						}
 					}
@@ -198,6 +206,15 @@
 					}
 					// ---------------------------------------------------- }}}
 
+					// TODO
+					//
+					// alias_method: {
+					//	   foo: function(super, ...) { ... }
+					//     foo: ["foo_orig", function(super, ...) {
+					//         ...
+					//     }]
+					// }
+
 					// initialize ========================================= {{{
 					if (typeof mixin.initialize === 'function') {
 
@@ -211,7 +228,11 @@
 							mixinConf.papa = papa;
 						}
 
-						mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
+						try {
+							mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
+						} catch (err) {
+							log.error(err);
+						}
 					}
 					// ---------------------------------------------------- }}}
 
