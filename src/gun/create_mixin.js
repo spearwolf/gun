@@ -6,9 +6,9 @@
 	  ;
 
 	module.exports = function(gun) {
-		var log = gun._gun.Logger;
+		var log = gun._gun_.Logger;
 
-		setup_registry(gun, '_mixins_registry');
+		setup_registry(gun, '_gun_mixins_registry_');
 
 		var includeMixin = function(objectTypeName, instance, originalObjectTypeName) {
 			if (Array.isArray(originalObjectTypeName)) {
@@ -24,21 +24,49 @@
 			return instance;
 		};
 
-		var createNewObject = function(objectTypeName, objInstance, newScopeInheritance) {
-			if (typeof objInstance === 'undefined') {
-				return includeMixin(objectTypeName, Object.create(null));
+		var createNewObject = function() { // (objectTypeName || [objectTypeName,..], objInstance)
+			var args = Array.prototype.slice.call(arguments, 0);
+			var objectTypeName;
+			var objInstance = null;
+
+			if (Array.isArray(args[0])) {
+				objectTypeName = args.shift();
 			} else {
-				var obj;
-				if (newScopeInheritance === false) {
-					obj = objInstance;
+				objectTypeName = [];
+				while (typeof args[0] === 'string') {
+					objectTypeName.push(args.shift());
+				}
+			}
+			if (args.length > 0) {
+				objInstance = args.shift();
+			}
+
+			var obj;
+			if (typeof objInstance === 'function') {
+				if (args.length === 0) {
+					obj = new objInstance();
 				} else {
-					obj = Object.create(objInstance);
-					if (obj.gun) {
-						obj.gun.instance = obj;
+					switch (args.length) {
+						case 1: obj = new objInstance(args[0]); break;
+						case 2: obj = new objInstance(args[0], args[1]); break;
+						case 3: obj = new objInstance(args[0], args[1], args[2]); break;
+						case 4: obj = new objInstance(args[0], args[1], args[2], args[3]); break;
+						case 5: obj = new objInstance(args[0], args[1], args[2], args[3], args[4]); break;
+						case 6: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5]); break;
+						case 7: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+						case 8: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+						default: throw "too many (constructor) arguments! please consider to use gun.Inject(..) instead of gun.CreateObject(..)";
 					}
 				}
-				return includeMixin(objectTypeName, obj);
+			} else {
+				obj = Object.create(objInstance);
 			}
+
+			if (obj.gun) {
+				obj.gun.instance = obj;
+			}
+
+			return includeMixin(objectTypeName, obj);
 		};
 
 		function mixin_args(instance, objExports, objConf) {
@@ -83,7 +111,7 @@
 				instance = gunInstance.gun.instance;
 			}
 
-			var _mixins = gun._mixins_registry.findAll(objectTypeName);
+			var _mixins = gun._gun_mixins_registry_.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
@@ -143,18 +171,26 @@
 					// define ============================================= {{{
 					if (typeof mixin.define === 'object') {
 						for (key in mixin.define) {
-							if (mixin.define.hasOwnProperty(key) && 'function' === typeof mixin.define[key]) {
-								try {
-									instance[key] = mixin.define[key].call(instance, instance);
-								} catch (err) {
-									log.error(err);
+							if (mixin.define.hasOwnProperty(key)) {
+							   	if ('function' === typeof mixin.define[key]) {
+									try {
+										instance[key] = mixin.define[key].call(instance, instance);
+									} catch (err) {
+										log.error(err);
+									}
+								} else if ('object' === typeof mixin.define[key]) {
+									try {
+										Object.defineProperty(instance, key, mixin.define[key]);
+									} catch (err) {
+										log.error(err);
+									}
 								}
 							}
 						}
 					}
 					// ---------------------------------------------------- }}}
 
-					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjPath(mixin.namespace, gunInstance) : gunInstance;
+					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjectPath(mixin.namespace, gunInstance) : gunInstance;
 
 					// exports ============================================ {{{
 					if (typeof mixin.exports === 'object') {
@@ -201,6 +237,8 @@
 								}
 								if ('function' === typeof val) {
 									instance[key] = create_alias_method(instance[key], val, gunInstance);
+								} else if ('undefined' !== typeof val) {
+									log.warn("could not alias method", key, 'of', instance, ':', key, " isnt typeof 'function' or 'undefined' (is", typeof val, ")");
 								}
 							}
 						}
@@ -211,10 +249,10 @@
 					// initialize ========================================= {{{
 					if (typeof mixin.initialize === 'function') {
 
-						var mixinConf = gun._mixins_registry.findOne(originalObjectTypeName, true);
+						var mixinConf = gun._gun_mixins_registry_.findOne(originalObjectTypeName, true);
 
 						if (!mixinConf) {
-							mixinConf = gun._mixins_registry.findOne(objectTypeName, true);
+							mixinConf = gun._gun_mixins_registry_.findOne(objectTypeName, true);
 						}
 
 						if (mixinConf && !mixinConf.gun) {
@@ -233,7 +271,9 @@
 			}
 		}
 
-		var api = function(objectTypeName, callback) {
+		var api = Object.create(null);
+		
+		api.Mixin = function(objectTypeName, callback) {
 
 			var mixin = callback();
 
@@ -245,7 +285,7 @@
 				mixin.objectTypeName = objectTypeName;
 			}
 
-			gun._mixins_registry.push(objectTypeName, mixin);
+			gun._gun_mixins_registry_.push(objectTypeName, mixin);
 
 			// factory
 			if (mixin.factory) {
@@ -258,7 +298,7 @@
 		};
 
 		api.Inject = includeMixin;
-		api.NewObject = createNewObject;
+		api.CreateObject = createNewObject;
 
 		return api;
 	};

@@ -9,16 +9,18 @@
 			VERSION: '0.6.1',
 
 			Namespace: create_namespace.Namespace,
-			CreateObjPath: create_namespace.CreateObjPath
+			CreateObjectPath: create_namespace.CreateObjectPath
 		}
 	  ;
 
-	Object.defineProperty(gun, '_gun', { value: gun });
+	Object.defineProperty(gun, '_gun_', { value: gun });
 
 	require('./gun/log')(gun);
 
 	gun.Module = create_module(gun);
-	gun.Mixin = create_mixin(gun);
+	gun.Mixin = create_mixin(gun).Mixin;
+	gun.Inject = create_mixin(gun).Inject;
+	gun.CreateObject = create_mixin(gun).CreateObject;
 
 	require('./gun/events')(gun);
 	require('./gun/object_directory.coffee')(gun);

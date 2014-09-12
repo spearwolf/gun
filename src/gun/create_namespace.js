@@ -48,7 +48,7 @@
     };
 
     module.exports = {
-        CreateObjPath: createObjPath,
+        CreateObjectPath: createObjPath,
         Namespace: createNamespace
     };
 

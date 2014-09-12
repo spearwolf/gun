@@ -68,12 +68,12 @@
 
 
 	module.exports = function(gun, propName) {
-		if (!gun._gun.hasOwnProperty(propName)) {
-			Object.defineProperty(gun._gun, propName, { value: new Registry() });
+		if (!gun._gun_.hasOwnProperty(propName)) {
+			Object.defineProperty(gun._gun_, propName, { value: new Registry() });
 		}
-		if (gun._gun !== gun) {
+		if (gun._gun_ !== gun) {
 			if (!gun.hasOwnProperty(propName)) {
-				Object.defineProperty(gun, propName, { value: new Registry(gun._gun[propName]) });
+				Object.defineProperty(gun, propName, { value: new Registry(gun._gun_[propName]) });
 			}
 		}
 	};

@@ -8,25 +8,27 @@
 
 	module.exports = function(gun) {
 
-		setup_registry(gun, '_modules_registry');
+		setup_registry(gun, '_gun_modules_registry_');
 
 		function create_mod_root() {
 			var mod = {};
-			Object.defineProperty(mod, '_gun', { value: gun });
+			Object.defineProperty(mod, '_gun_', { value: gun });
 
 			mod.Namespace = function(name, createModFn) {
 				return create_namespace.Namespace(name, mod, createModFn);
 			};
 
-			mod.Mixin = create_mixin(mod);
+			mod.Mixin = create_mixin(mod).Mixin;
+			mod.Inject = create_mixin(mod).Inject;
+			mod.CreateObject = create_mixin(mod).CreateObject;
 
 			return mod;
 		}
 
 		return function(modName) {
-			var mod = gun._modules_registry.get(modName);
+			var mod = gun._gun_modules_registry_.get(modName);
 			if (!mod) {
-				mod = gun._modules_registry.set(modName, create_mod_root());
+				mod = gun._gun_modules_registry_.set(modName, create_mod_root());
 			}
 
 			return mod;
