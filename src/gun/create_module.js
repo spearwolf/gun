@@ -21,6 +21,7 @@
 			mod.Mixin = create_mixin(mod).Mixin;
 			mod.Inject = create_mixin(mod).Inject;
 			mod.CreateObject = create_mixin(mod).CreateObject;
+			mod.Logger = mod._gun_.Logger;
 
 			return mod;
 		}
