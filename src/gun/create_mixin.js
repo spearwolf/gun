@@ -62,43 +62,17 @@
 				obj = Object.create(objInstance);
 			}
 
-			//if (obj._gun_) {
-				//obj._gun_.instance = obj;
-			//}
-
 			return includeMixin(objectTypeName, obj);
 		};
-
-		//function mixin_args(instance, objConf) {
-			//return Object.create(null, {
-				//self: {
-					//enumerable: true,
-					   //value: instance },
-				//exports: {
-					//enumerable: true,
-					   //value: instance },
-				//conf: {
-					//enumerable: true,
-					   //value: objConf },
-				//current: {
-					//enumerable: true,
-					//get: function() {
-						//return instance;
-					//} }
-			//});
-		//}
 
 		function create_alias_method(_super, _alias, _instance) {
 			if (typeof _super === 'undefined') {
 				_super = function(){};
 			}
-			return function() {
-				return _alias.apply(_instance, [_super].concat(Array.prototype.slice.call(arguments, 0)));
-			};
+			return _alias.bind(_instance, _super.bind(_instance));
 		}
 
 		function _initialize(objectTypeName, instance, originalObjectTypeName) {
-			var exports;
 			var _mixins = gun._gun_mixins_registry_.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
@@ -108,6 +82,7 @@
 					Object.defineProperty(instance, '_gun_', {
 						value: Object.create(null)
 					});
+					instance._gun_.instance = instance;
 					instance._gun_.kindOf = function(mixinName) {
 						var found = !instance._gun_.mixins ? false : instance._gun_.mixins.indexOf(mixinName) > -1;
 						if (!found) {
@@ -224,8 +199,8 @@
 					if (typeof mixin.alias_method === 'object') {
 						for (key in mixin.alias_method) {
 							if (mixin.alias_method.hasOwnProperty(key)) {
-								val = typeof mixin.alias_method[key];
-								if (Array.isArray(val)) {
+								val = mixin.alias_method[key];
+								if ('string' !== typeof val && Array.isArray(val)) {
 									instance[val[0]] = instance[key];
 									val = val[1];
 								}
@@ -254,7 +229,6 @@
 						}
 
 						try {
-							//mixin.initialize.call(instance, mixin_args(instance, mixinConf));
 							mixin.initialize.call(instance, instance, mixinConf);
 						} catch (err) {
 							log.error(err);

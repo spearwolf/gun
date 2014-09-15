@@ -21,24 +21,24 @@
         if ('undefined' !== typeof root.console) {
 
             api.debug = function() {
-                if (api.options.DEBUG) console.debug.apply(console, arguments);
+                if (api.options.DEBUG) root.console.debug.apply(root.console, arguments);
             };
             api.info = function() {
-                if (api.options.INFO) console.info.apply(console, arguments);
+                if (api.options.INFO) root.console.info.apply(root.console, arguments);
             };
             api.warn = function() {
-                if (api.options.WARN) console.warn.apply(console, arguments);
+                if (api.options.WARN) root.console.warn.apply(root.console, arguments);
             };
             api.error = function() {
-                if (api.options.ERROR) console.error.apply(console, arguments);
+                if (api.options.ERROR) root.console.error.apply(root.console, arguments);
             };
 
             if ('function' === typeof root.console.group) {
                 api.group = function(name, fn) {
                     var any = any_log();
-                    if (any) console.group(name);
+                    if (any) root.console.group(name);
                     fn();
-                    if (any) console.groupEnd();
+                    if (any) root.console.groupEnd();
                 };
             } else {
                 api.group = function(_, fn) {

@@ -18,7 +18,7 @@
 
     });
 
-    foo.Mixin('position', function(){
+    foo.Mixin('vec3', function(){
       return {
         factory: true,
 
@@ -26,21 +26,38 @@
           incValue: 1
         },
 
+        namespace: 'vec',
+
         exports: {
           inc: function() {
             this.x += this.incValue;
             this.y += this.incValue;
             this.z += this.incValue;
-          },
-          set: function(x, y, z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
           }
         },
 
-        initialize: function(position) {
-          position.set(1,2,3);
+        initialize: function(v) {
+
+          v.set = function(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+          };
+
+          v.getX = function() { return this.x };
+
+          v.set(1,2,3);
+        }
+      };
+    });
+
+    foo.Mixin('doubled.x', function(){
+      return {
+        alias_method: {
+          getX: ['origGetX', function(_super) {
+            var _x = _super();
+            return _x + _x;
+          }]
         }
       };
     });

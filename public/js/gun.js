@@ -7,7 +7,7 @@
 	  , create_module = _dereq_('./gun/create_module')
 	  , gun = {
 
-			VERSION: '0.6.1',
+			VERSION: '0.6.4',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
@@ -96,43 +96,17 @@
 				obj = Object.create(objInstance);
 			}
 
-			//if (obj._gun_) {
-				//obj._gun_.instance = obj;
-			//}
-
 			return includeMixin(objectTypeName, obj);
 		};
-
-		//function mixin_args(instance, objConf) {
-			//return Object.create(null, {
-				//self: {
-					//enumerable: true,
-					   //value: instance },
-				//exports: {
-					//enumerable: true,
-					   //value: instance },
-				//conf: {
-					//enumerable: true,
-					   //value: objConf },
-				//current: {
-					//enumerable: true,
-					//get: function() {
-						//return instance;
-					//} }
-			//});
-		//}
 
 		function create_alias_method(_super, _alias, _instance) {
 			if (typeof _super === 'undefined') {
 				_super = function(){};
 			}
-			return function() {
-				return _alias.apply(_instance, [_super].concat(Array.prototype.slice.call(arguments, 0)));
-			};
+			return _alias.bind(_instance, _super.bind(_instance));
 		}
 
 		function _initialize(objectTypeName, instance, originalObjectTypeName) {
-			var exports;
 			var _mixins = gun._gun_mixins_registry_.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
@@ -142,6 +116,7 @@
 					Object.defineProperty(instance, '_gun_', {
 						value: Object.create(null)
 					});
+					instance._gun_.instance = instance;
 					instance._gun_.kindOf = function(mixinName) {
 						var found = !instance._gun_.mixins ? false : instance._gun_.mixins.indexOf(mixinName) > -1;
 						if (!found) {
@@ -258,8 +233,8 @@
 					if (typeof mixin.alias_method === 'object') {
 						for (key in mixin.alias_method) {
 							if (mixin.alias_method.hasOwnProperty(key)) {
-								val = typeof mixin.alias_method[key];
-								if (Array.isArray(val)) {
+								val = mixin.alias_method[key];
+								if ('string' !== typeof val && Array.isArray(val)) {
 									instance[val[0]] = instance[key];
 									val = val[1];
 								}
@@ -288,7 +263,6 @@
 						}
 
 						try {
-							//mixin.initialize.call(instance, mixin_args(instance, mixinConf));
 							mixin.initialize.call(instance, instance, mixinConf);
 						} catch (err) {
 							log.error(err);
@@ -519,24 +493,24 @@
         if ('undefined' !== typeof root.console) {
 
             api.debug = function() {
-                if (api.options.DEBUG) console.debug.apply(console, arguments);
+                if (api.options.DEBUG) root.console.debug.apply(root.console, arguments);
             };
             api.info = function() {
-                if (api.options.INFO) console.info.apply(console, arguments);
+                if (api.options.INFO) root.console.info.apply(root.console, arguments);
             };
             api.warn = function() {
-                if (api.options.WARN) console.warn.apply(console, arguments);
+                if (api.options.WARN) root.console.warn.apply(root.console, arguments);
             };
             api.error = function() {
-                if (api.options.ERROR) console.error.apply(console, arguments);
+                if (api.options.ERROR) root.console.error.apply(root.console, arguments);
             };
 
             if ('function' === typeof root.console.group) {
                 api.group = function(name, fn) {
                     var any = any_log();
-                    if (any) console.group(name);
+                    if (any) root.console.group(name);
                     fn();
-                    if (any) console.groupEnd();
+                    if (any) root.console.groupEnd();
                 };
             } else {
                 api.group = function(_, fn) {
