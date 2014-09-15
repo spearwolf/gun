@@ -20,7 +20,6 @@
 
     foo.Mixin('position', function(){
       return {
-        namespace: 'pos',
         factory: true,
 
         defaults: {
@@ -40,8 +39,8 @@
           }
         },
 
-        initialize: function(o) {
-          o.exports.set(1,2,3);
+        initialize: function(position) {
+          position.set(1,2,3);
         }
       };
     });

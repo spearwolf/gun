@@ -15,29 +15,29 @@ module.exports = (gun) ->
 
 
 
-        initialize: (obj) ->
+        initialize: (o, conf) ->
 
-            obj.conf.objectDirectory or=
+            conf.objectDirectory or=
                 obj_directory: {}
                 latest_obj: null
                 cur_obj_id: 0
 
-            obj.self.name = build_obj_id(obj.current, obj.conf)
-            _conf = obj.conf.objectDirectory
-            _conf.obj_directory[obj.self.name] = obj.self
+            o.name = build_obj_id(o, conf)
+            _conf = conf.objectDirectory
+            _conf.obj_directory[o.name] = o
 
             finder = (name) -> _conf.obj_directory[name]
 
             unless _conf.static_finder_created
                 _conf.static_finder_created = yes
 
-                obj.conf.gun.Namespace obj.conf.objectTypeName, (exports) ->
+                conf.gun.Namespace conf.objectTypeName, (exports) ->
                     exports.get = finder
                     exports.find = finder
                     exports.latest = -> _conf.latest_obj
                     return
 
-            _conf.latest_obj = obj.self
+            _conf.latest_obj = o
 
 
 # vim: noexpandtab sts=4 sw=4 ts=4

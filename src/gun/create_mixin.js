@@ -27,7 +27,7 @@
 		var createNewObject = function() { // (objectTypeName || [objectTypeName,..], objInstance)
 			var args = Array.prototype.slice.call(arguments, 0);
 			var objectTypeName;
-			var objInstance = null;
+			var objInstance = Object;
 
 			if (Array.isArray(args[0])) {
 				objectTypeName = args.shift();
@@ -62,78 +62,72 @@
 				obj = Object.create(objInstance);
 			}
 
-			if (obj.gun) {
-				obj.gun.instance = obj;
-			}
+			//if (obj._gun_) {
+				//obj._gun_.instance = obj;
+			//}
 
 			return includeMixin(objectTypeName, obj);
 		};
 
-		function mixin_args(instance, objExports, objConf) {
-			return Object.create(null, {
-				self: {
-					enumerable: true,
-				   	value: instance },
-				exports: {
-					enumerable: true,
-				   	value: objExports },
-				conf: {
-					enumerable: true,
-				   	value: objConf },
-				current: {
-					enumerable: true,
-					get: function() {
-						return instance.gun.instance;
-					} }
-			});
-		}
+		//function mixin_args(instance, objConf) {
+			//return Object.create(null, {
+				//self: {
+					//enumerable: true,
+					   //value: instance },
+				//exports: {
+					//enumerable: true,
+					   //value: instance },
+				//conf: {
+					//enumerable: true,
+					   //value: objConf },
+				//current: {
+					//enumerable: true,
+					//get: function() {
+						//return instance;
+					//} }
+			//});
+		//}
 
-		function create_alias_method(_super, _alias, _gun) {
+		function create_alias_method(_super, _alias, _instance) {
 			if (typeof _super === 'undefined') {
 				_super = function(){};
 			}
 			return function() {
-				return _alias.apply(_gun.gun.instance, [_super].concat(Array.prototype.slice.call(arguments, 0)));
+				return _alias.apply(_instance, [_super].concat(Array.prototype.slice.call(arguments, 0)));
 			};
 		}
 
-		function create_gun_instance_method(_method, _gun) {
-			return function(){
-			   return _method.apply(_gun.gun.instance, arguments);
-			};
-		}
-
-		function _initialize(objectTypeName, gunInstance, originalObjectTypeName) {
+		function _initialize(objectTypeName, instance, originalObjectTypeName) {
 			var exports;
-			var instance = gunInstance;
-
-			if (gunInstance.gun && gunInstance.gun.instance) {
-				instance = gunInstance.gun.instance;
-			}
-
 			var _mixins = gun._gun_mixins_registry_.findAll(objectTypeName);
 
 			if (Array.isArray(_mixins) && _mixins.length > 0) {
 
-				if (!gunInstance.gun) {
-					Object.defineProperty(gunInstance, 'gun', {
+				if (!Object.hasOwnProperty.call(instance, '_gun_')) {
+
+					Object.defineProperty(instance, '_gun_', {
 						value: Object.create(null)
 					});
-					gunInstance.gun.instance = instance;
-					gunInstance.gun.gunInstance = gunInstance;
-					gunInstance.gun.kindOf = function(mixinName) {
-						if (!gunInstance.gun.mixins) return false;
-						return gunInstance.gun.mixins.indexOf(mixinName) > -1;
+					instance._gun_.kindOf = function(mixinName) {
+						var found = !instance._gun_.mixins ? false : instance._gun_.mixins.indexOf(mixinName) > -1;
+						if (!found) {
+							var proto = Object.getPrototypeOf(instance);
+							if (proto && proto._gun_ && 'function' === typeof proto._gun_.kindOf) {
+								found = proto._gun_.kindOf(mixinName);
+							}
+						}
+						return found;
 					};
 				}
 
-				if (!gunInstance.gun.mixins) {
-					gunInstance.gun.mixins = [objectTypeName];
+				if (instance._gun_.kindOf(objectTypeName)) {
+					return;
 				} else {
-					if (gunInstance.gun.mixins.indexOf(objectTypeName) > -1) {
-						return;
+					if (!instance._gun_.mixins) {
+						instance._gun_.mixins = [objectTypeName];
+					} else {
+						instance._gun_.mixins.push(objectTypeName);
 					}
-					gunInstance.gun.mixins.push(objectTypeName);
 				}
 
 				_mixins.forEach(function(mixin) {
@@ -142,10 +136,10 @@
 					// dependsOn ========================================== {{{
 					if (Array.isArray(mixin.dependsOn)) {
 						mixin.dependsOn.forEach(function(_typeName) {
-							includeMixin(_typeName, gunInstance, originalObjectTypeName);
+							includeMixin(_typeName, instance, originalObjectTypeName);
 						});
 					} else if (typeof mixin.dependsOn === 'string') {
-						includeMixin(mixin.dependsOn, gunInstance, originalObjectTypeName);
+						includeMixin(mixin.dependsOn, instance, originalObjectTypeName);
 					}
 					// ---------------------------------------------------- }}}
 
@@ -190,13 +184,13 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjectPath(mixin.namespace, gunInstance) : gunInstance;
+					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjectPath(mixin.namespace, instance) : instance;
 
 					// exports ============================================ {{{
 					if (typeof mixin.exports === 'object') {
 						for (key in mixin.exports) {
 							if (mixin.exports.hasOwnProperty(key)) {
-								exports[key] = create_gun_instance_method(mixin.exports[key], gunInstance);
+								exports[key] = mixin.exports[key].bind(instance);
 							}
 						}
 					}
@@ -204,8 +198,8 @@
 
 					// on ================================================= {{{
 					if (typeof mixin.on === 'object') {
-						if (!instance.gun.kindOf('events')) {
-							includeMixin('events', gunInstance, originalObjectTypeName);
+						if (!instance._gun_.kindOf('events')) {
+							includeMixin('events', instance, originalObjectTypeName);
 						}
 						for (key in mixin.on) {
 							if (mixin.on.hasOwnProperty(key)) {
@@ -236,7 +230,7 @@
 									val = val[1];
 								}
 								if ('function' === typeof val) {
-									instance[key] = create_alias_method(instance[key], val, gunInstance);
+									instance[key] = create_alias_method(instance[key], val, instance);
 								} else if ('undefined' !== typeof val) {
 									log.warn("could not alias method", key, 'of', instance, ':', key, " isnt typeof 'function' or 'undefined' (is", typeof val, ")");
 								}
@@ -260,7 +254,8 @@
 						}
 
 						try {
-							mixin.initialize.call(instance, mixin_args(instance, exports, mixinConf));
+							//mixin.initialize.call(instance, mixin_args(instance, mixinConf));
+							mixin.initialize.call(instance, instance, mixinConf);
 						} catch (err) {
 							log.error(err);
 						}

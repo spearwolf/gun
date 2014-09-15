@@ -9,7 +9,7 @@
 
                 var callbacks = { _id: 0 };
 
-                o.exports.on = function(eventName, prio, fn) {
+                o.on = function(eventName, prio, fn) {
 
                     if (arguments.length === 2) {
                         fn = prio;
@@ -28,7 +28,7 @@
                     return fnId;
                 };
 
-                o.exports.off = function(id) {
+                o.off = function(id) {
                     var cb, i, j, _callbacks, keys = Object.keys(callbacks);
 					for (j = 0; j < keys.length; j++) {
 						_callbacks = callbacks[keys[j]];
@@ -42,11 +42,12 @@
                     }
                 };
 
-                o.exports.emit = function(eventName /* arguments.. */) {
+                o.emit = function(eventName /* arguments.. */) {
                     var args = Array.prototype.slice.call(arguments, 1);
+					var self = this;
                     if (eventName in callbacks) {
                         callbacks[eventName].forEach(function(cb){
-                            cb.fn.apply(o.current, args);
+                            cb.fn.apply(self, args);
                         });
                     }
                 };
