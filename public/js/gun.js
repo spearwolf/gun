@@ -8,7 +8,7 @@
 	  , hijack = _dereq_('./gun/hijack')
 	  , gun = {
 
-			VERSION: '0.6.5',
+			VERSION: '0.6.6',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
@@ -475,18 +475,22 @@
 
 },{}],6:[function(_dereq_,module,exports){
 (function(){
-    "use strict";
 	module.exports = function(gun) {
 
-        return function(_constructor /*, mixins*/) {
+        return function(_CTOR /*, mixins*/) {
             var mixins = Array.prototype.slice.call(arguments, 1);
+            var hijacked;
 
-            var hijacked = function(){
-                _constructor.apply(this, arguments);
-                gun.Inject(mixins, this);
-            };
+            //hijacked = function(){
+                //_constructor.apply(this, arguments);
+                //gun.Inject(mixins, this);
+            //};
 
-            hijacked.prototype = _constructor.prototype;
+            /* jshint ignore:start */
+            hijacked = eval("(function "+_CTOR.name+'(){_CTOR.apply(this,arguments);gun.Inject(["'+mixins.join('","')+'"],this)})');
+            /* jshint ignore:end */
+
+            hijacked.prototype = _CTOR.prototype;
 
             return hijacked;
         };

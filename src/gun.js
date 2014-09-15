@@ -7,7 +7,7 @@
 	  , hijack = require('./gun/hijack')
 	  , gun = {
 
-			VERSION: '0.6.5',
+			VERSION: '0.6.6',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
