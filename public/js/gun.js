@@ -5,9 +5,10 @@
 	var create_namespace = _dereq_('./gun/create_namespace')
 	  , create_mixin = _dereq_('./gun/create_mixin')
 	  , create_module = _dereq_('./gun/create_module')
+	  , hijack = _dereq_('./gun/hijack')
 	  , gun = {
 
-			VERSION: '0.6.4',
+			VERSION: '0.6.5',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
@@ -22,6 +23,7 @@
 	gun.Mixin = create_mixin(gun).Mixin;
 	gun.Inject = create_mixin(gun).Inject;
 	gun.CreateObject = create_mixin(gun).CreateObject;
+	gun.Hijack = hijack(gun);
 
 	_dereq_('./gun/events')(gun);
 	_dereq_('./gun/object_directory.coffee')(gun);
@@ -31,7 +33,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./gun/create_mixin":2,"./gun/create_module":3,"./gun/create_namespace":4,"./gun/events":5,"./gun/log":6,"./gun/object_directory.coffee":8}],2:[function(_dereq_,module,exports){
+},{"./gun/create_mixin":2,"./gun/create_module":3,"./gun/create_namespace":4,"./gun/events":5,"./gun/hijack":6,"./gun/log":7,"./gun/object_directory.coffee":9}],2:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -309,13 +311,14 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_namespace":4,"./registry":9}],3:[function(_dereq_,module,exports){
+},{"./create_namespace":4,"./registry":10}],3:[function(_dereq_,module,exports){
 (function(){
 	"use strict";
 
 	var create_namespace = _dereq_('./create_namespace')
 	  , create_mixin = _dereq_('./create_mixin')
 	  , setup_registry = _dereq_('./registry')
+	  , hijack = _dereq_('./hijack')
 	  ;
 
 	module.exports = function(gun) {
@@ -333,6 +336,7 @@
 			mod.Mixin = create_mixin(mod).Mixin;
 			mod.Inject = create_mixin(mod).Inject;
 			mod.CreateObject = create_mixin(mod).CreateObject;
+			mod.Hijack = hijack(mod);
 			mod.Logger = mod._gun_.Logger;
 
 			return mod;
@@ -351,7 +355,7 @@
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./create_mixin":2,"./create_namespace":4,"./registry":9}],4:[function(_dereq_,module,exports){
+},{"./create_mixin":2,"./create_namespace":4,"./hijack":6,"./registry":10}],4:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -408,7 +412,7 @@
 
 })();
 
-},{"./root":10}],5:[function(_dereq_,module,exports){
+},{"./root":11}],5:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -472,6 +476,27 @@
 },{}],6:[function(_dereq_,module,exports){
 (function(){
     "use strict";
+	module.exports = function(gun) {
+
+        return function(_constructor /*, mixins*/) {
+            var mixins = Array.prototype.slice.call(arguments, 1);
+
+            var hijacked = function(){
+                _constructor.apply(this, arguments);
+                gun.Inject(mixins, this);
+            };
+
+            hijacked.prototype = _constructor.prototype;
+
+            return hijacked;
+        };
+
+    };
+})();
+
+},{}],7:[function(_dereq_,module,exports){
+(function(){
+    "use strict";
 
     module.exports = function(gun) {
 
@@ -527,7 +552,7 @@
 })();
 // vim: et ts=4 sts=4 sw=4
 
-},{"./root":10}],7:[function(_dereq_,module,exports){
+},{"./root":11}],8:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -548,7 +573,7 @@
 })();
 // vim: et ts=4 sts=4 sw=4
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 module.exports = function(gun) {
   return gun.Mixin('object_directory', function() {
     var build_obj_id;
@@ -594,7 +619,7 @@ module.exports = function(gun) {
 
 
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 (function(){
     "use strict";
 
@@ -678,7 +703,7 @@ module.exports = function(gun) {
 })();
 // vim: set noexpandtab:sts=4:ts=4:sw=4:
 
-},{"./map":7}],10:[function(_dereq_,module,exports){
+},{"./map":8}],11:[function(_dereq_,module,exports){
 (function (global){
 (function(){
     "use strict";

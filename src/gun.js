@@ -4,9 +4,10 @@
 	var create_namespace = require('./gun/create_namespace')
 	  , create_mixin = require('./gun/create_mixin')
 	  , create_module = require('./gun/create_module')
+	  , hijack = require('./gun/hijack')
 	  , gun = {
 
-			VERSION: '0.6.4',
+			VERSION: '0.6.5',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
@@ -21,6 +22,7 @@
 	gun.Mixin = create_mixin(gun).Mixin;
 	gun.Inject = create_mixin(gun).Inject;
 	gun.CreateObject = create_mixin(gun).CreateObject;
+	gun.Hijack = hijack(gun);
 
 	require('./gun/events')(gun);
 	require('./gun/object_directory.coffee')(gun);

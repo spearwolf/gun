@@ -4,6 +4,7 @@
 	var create_namespace = require('./create_namespace')
 	  , create_mixin = require('./create_mixin')
 	  , setup_registry = require('./registry')
+	  , hijack = require('./hijack')
 	  ;
 
 	module.exports = function(gun) {
@@ -21,6 +22,7 @@
 			mod.Mixin = create_mixin(mod).Mixin;
 			mod.Inject = create_mixin(mod).Inject;
 			mod.CreateObject = create_mixin(mod).CreateObject;
+			mod.Hijack = hijack(mod);
 			mod.Logger = mod._gun_.Logger;
 
 			return mod;
