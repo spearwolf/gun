@@ -326,8 +326,12 @@
 
 		setup_registry(gun, '_gun_modules_registry_');
 
-		function create_mod_root() {
-			var mod = {};
+		function create_mod_root(mod) {
+			
+			if (typeof mod === 'undefined') {
+				mod = {};
+			}
+
 			Object.defineProperty(mod, '_gun_', { value: gun });
 
 			mod.Namespace = function(name, createModFn) {
@@ -343,10 +347,10 @@
 			return mod;
 		}
 
-		return function(modName) {
+		return function(modName, root) {
 			var mod = gun._gun_modules_registry_.get(modName);
 			if (!mod) {
-				mod = gun._gun_modules_registry_.set(modName, create_mod_root());
+				mod = gun._gun_modules_registry_.set(modName, create_mod_root(root));
 			}
 
 			return mod;
