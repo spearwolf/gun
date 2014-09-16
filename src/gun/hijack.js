@@ -5,16 +5,11 @@
             var mixins = Array.prototype.slice.call(arguments, 1);
             var hijacked;
 
-            //hijacked = function(){
-                //_constructor.apply(this, arguments);
-                //gun.Inject(mixins, this);
-            //};
-
             /* jshint ignore:start */
             hijacked = eval("(function "+_CTOR.name+'(){_CTOR.apply(this,arguments);gun.Inject(["'+mixins.join('","')+'"],this)})');
             /* jshint ignore:end */
 
-            hijacked.prototype = _CTOR.prototype;
+            hijacked.prototype = Object.create(_CTOR.prototype);
 
             return hijacked;
         };

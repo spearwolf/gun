@@ -55,7 +55,7 @@
 						case 6: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5]); break;
 						case 7: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
 						case 8: obj = new objInstance(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
-						default: throw "too many (constructor) arguments! please consider to use gun.Inject(..) instead of gun.CreateObject(..)";
+						default: throw "Too many (constructor) arguments! please consider to use gun.Inject(..) instead of gun.CreateObject(..) here";
 					}
 				}
 			} else {
@@ -224,7 +224,7 @@
 							mixinConf = gun._gun_mixins_registry_.findOne(objectTypeName, true);
 						}
 
-						if (mixinConf && !mixinConf.gun) {
+						if (!mixinConf.gun) {
 							mixinConf.gun = gun;
 						}
 
@@ -237,6 +237,9 @@
 					// ---------------------------------------------------- }}}
 
 				});  // for each mixin
+
+			} else {
+				throw "Mixin not found: " + (Array.isArray(objectTypeName) ? objectTypeName.join(',') : objectTypeName);
 			}
 		}
 
@@ -259,9 +262,7 @@
 			// factory
 			if (mixin.factory) {
 				gun.Namespace(('string' === typeof mixin.factory ? mixin.factory : objectTypeName + ".create"), function() {
-					return function(obj) {
-						return createNewObject(objectTypeName, obj);
-					};
+					return createNewObject.bind(gun, objectTypeName);
 				});
 			}
 		};
