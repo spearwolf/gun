@@ -458,7 +458,7 @@
                     }
                 };
 
-                o.emit = function(eventName /* arguments.. */) {
+                o.emit = function(eventName /*, arguments ..*/) {
                     var args = Array.prototype.slice.call(arguments, 1);
 					var self = this;
                     if (eventName in callbacks) {
@@ -467,6 +467,20 @@
                         });
                     }
                 };
+
+				o.emitReduce = function(eventName /*, value, [arguments ..] */) {
+					var self = this;
+                    var args = Array.prototype.slice.call(arguments, 1);
+					if (typeof args[0] === 'undefined') {
+						args[0] = {};
+					}
+                    if (eventName in callbacks) {
+                        callbacks[eventName].forEach(function(cb){
+                            args[0] = cb.fn.apply(self, args);
+                        });
+                    }
+					return args[0];
+				};	
 
             };
         });
