@@ -20,32 +20,29 @@
 
     foo.Mixin('vec3', function(){
       return {
-        factory: true,
+        factory: 'vec3.New',
 
         defaults: {
           incValue: 1
         },
-
-        namespace: 'vec',
 
         exports: {
           inc: function() {
             this.x += this.incValue;
             this.y += this.incValue;
             this.z += this.incValue;
+          },
+          set: function(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+          },
+          getX: function() {
+            return this.x;
           }
         },
 
         initialize: function(v) {
-
-          v.set = function(x, y, z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-          };
-
-          v.getX = function() { return this.x };
-
           v.set(1,2,3);
         }
       };
@@ -62,8 +59,14 @@
       };
     });
 
-    console.log('gun', gun);
+    console.log('foo', foo);
 
+    // try:
+    //
+    //   v = vec3.New()
+    //
+    //   gun.Inject('doubled.x', v)
+    //
   </script>
 </head>
 <body>
