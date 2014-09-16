@@ -19,8 +19,12 @@
                 this._DEBUG = enable;
                 var con;
                 try { con = console; } catch (err) {}
-                if (enable && con && 'undefined' !== typeof con.debug) {
-                    api.debug = con.debug.bind(con);
+                if (enable && con) {
+                    if ('undefined' !== typeof con.debug) {
+                        api.debug = con.debug.bind(con);
+                    } else if ('undefined' !== typeof con.log) {
+                        api.debug = con.log.bind(con);
+                    }
                 } else {
                     api.debug = function(){};
                 }
