@@ -8,7 +8,7 @@
 	  , hijack = _dereq_('./gun/hijack')
 	  , gun = {
 
-			VERSION: '0.6.7',
+			VERSION: '0.7.0',
 
 			Namespace: create_namespace.Namespace,
 			CreateObjectPath: create_namespace.CreateObjectPath
@@ -154,18 +154,18 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					// defaults =========================================== {{{
-					if (typeof mixin.defaults === 'object') {
-						for (key in mixin.defaults) {
-							if (mixin.defaults.hasOwnProperty(key) && 'undefined' === typeof instance[key]) {
-							   	if ('function' === typeof mixin.defaults[key]) {
+					// defaultValues ====================================== {{{
+					if (typeof mixin.defaultValues === 'object') {
+						for (key in mixin.defaultValues) {
+							if (mixin.defaultValues.hasOwnProperty(key) && 'undefined' === typeof instance[key]) {
+							   	if ('function' === typeof mixin.defaultValues[key]) {
 									try {
-										val = mixin.defaults[key].call(instance, instance);
+										val = mixin.defaultValues[key].call(instance, instance);
 									} catch (err) {
 										log.error(err);
 									}
 								} else {
-									val = mixin.defaults[key];
+									val = mixin.defaultValues[key];
 								}
 								instance[key] = val;
 							}
@@ -173,19 +173,19 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					// define ============================================= {{{
-					if (typeof mixin.define === 'object') {
-						for (key in mixin.define) {
-							if (mixin.define.hasOwnProperty(key)) {
-							   	if ('function' === typeof mixin.define[key]) {
+					// defineProperties =================================== {{{
+					if (typeof mixin.defineProperties === 'object') {
+						for (key in mixin.defineProperties) {
+							if (mixin.defineProperties.hasOwnProperty(key)) {
+							   	if ('function' === typeof mixin.defineProperties[key]) {
 									try {
-										instance[key] = mixin.define[key].call(instance, instance);
+										instance[key] = mixin.defineProperties[key].call(instance, instance);
 									} catch (err) {
 										log.error(err);
 									}
-								} else if ('object' === typeof mixin.define[key]) {
+								} else if ('object' === typeof mixin.defineProperties[key]) {
 									try {
-										Object.defineProperty(instance, key, mixin.define[key]);
+										Object.defineProperty(instance, key, mixin.defineProperties[key]);
 									} catch (err) {
 										log.error(err);
 									}
@@ -195,7 +195,11 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					var exports = typeof mixin.namespace === 'string' ? create_namespace.CreateObjectPath(mixin.namespace, instance) : instance;
+					// exportsNamespace =================================== {{{
+					var exports = typeof mixin.exportsNamespace === 'string' ?
+							create_namespace.CreateObjectPath(mixin.exportsNamespace, instance)
+						   	: instance;
+					// ---------------------------------------------------- }}}
 
 					// exports ============================================ {{{
 					if (typeof mixin.exports === 'object') {
@@ -224,18 +228,18 @@
 					}
 					// ---------------------------------------------------- }}}
 
-					// alias_method ======================================= {{{
+					// aliasMethod ======================================== {{{
 					//
-					// alias_method: {
+					// aliasMethod: {
 					//	   foo: function(super, ...) { ... }
 					//     foo: ["foo_orig", function(super, ...) {
 					//         ...
 					//     }]
 					// }
-					if (typeof mixin.alias_method === 'object') {
-						for (key in mixin.alias_method) {
-							if (mixin.alias_method.hasOwnProperty(key)) {
-								val = mixin.alias_method[key];
+					if (typeof mixin.aliasMethod === 'object') {
+						for (key in mixin.aliasMethod) {
+							if (mixin.aliasMethod.hasOwnProperty(key)) {
+								val = mixin.aliasMethod[key];
 								if ('string' !== typeof val && Array.isArray(val)) {
 									instance[val[0]] = instance[key];
 									val = val[1];

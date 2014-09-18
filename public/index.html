@@ -22,7 +22,7 @@
       return {
         factory: 'vec3.New',
 
-        defaults: {
+        defaultValues: {
           incValue: 1
         },
 
@@ -50,7 +50,7 @@
 
     foo.Mixin('doubled.x', function(){
       return {
-        alias_method: {
+        aliasMethod: {
           getX: ['origGetX', function(_super) {
             var _x = _super();
             return _x + _x;
