@@ -496,15 +496,27 @@
 (function(){
 	module.exports = function(gun) {
 
-        return function(_CTOR /*, mixins*/) {
+        return function(ctor /*, mixin[s, ..] [, constuctor]*/) {
+
+            if ('function' !== typeof ctor) {
+                throw 'Need a constructor as first argument, but is '+(typeof ctor);
+            }
+
             var mixins = Array.prototype.slice.call(arguments, 1);
             var hijacked;
+            var extra_ctor = typeof mixins[mixins.length - 1] === 'function' ? mixins.pop() : false;
 
             /* jshint ignore:start */
-            hijacked = eval("(function "+_CTOR.name+'(){_CTOR.apply(this,arguments);gun.Inject(["'+mixins.join('","')+'"],this)})');
+            hijacked = eval('(function '+ctor.name+'(){'+
+                                'this._gun_super_.apply(this,arguments);'+
+                                'gun.Inject(["'+mixins.join('","')+'"],this);'+
+                                'if(this._gun_extra_ctor_){this._gun_extra_ctor_.apply(this,arguments)}'+
+                            '})');
             /* jshint ignore:end */
 
-            hijacked.prototype = Object.create(_CTOR.prototype);
+            hijacked.prototype = Object.create(ctor.prototype);
+            hijacked.prototype._gun_super_ = ctor;
+            if (!!extra_ctor) hijacked.prototype._gun_extra_ctor_ = extra_ctor;
 
             return hijacked;
         };

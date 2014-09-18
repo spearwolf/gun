@@ -24,11 +24,8 @@ module.exports = function(grunt) {
 
         uglify: {
             min: {
-                options: {
-                    mangle: {
-                        except: ['_CTOR']
-                    }
-                },
+                //options: {
+                //},
                 files: {
                     'build/gun.min.js': [
                         'vendor/*.js',
