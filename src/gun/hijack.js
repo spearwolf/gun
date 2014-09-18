@@ -19,9 +19,10 @@
                             '})');
             /* jshint ignore:end */
 
-            hijacked.prototype = Object.create(ctor.prototype);
-            hijacked.prototype._gun_super_ = ctor;
-            if (!!extra_ctor) hijacked.prototype._gun_extra_ctor_ = extra_ctor;
+            hijacked.prototype = Object.create(ctor.prototype, {
+                '_gun_super_': { value: ctor },
+                '_gun_extra_ctor_': { value: extra_ctor }
+            });
 
             return hijacked;
         };
